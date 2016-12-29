@@ -1,0 +1,51 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "db63ac19ec43b74b4aa788f923acc013",
+    "content-hash": "1c230c8a3caa68d64b6555f6b4a19014",
+    "packages": [
+        {
+            "name": "debach/php-typography",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/debach/php-typography.git",
+                "reference": "a6afa31e36e6753576953258bdf06a11ed07da8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/debach/php-typography/zipball/a6afa31e36e6753576953258bdf06a11ed07da8a",
+                "reference": "a6afa31e36e6753576953258bdf06a11ed07da8a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Debach\\PhpTypography\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "The KINGdesk PHP Typography library improves typography on the web.",
+            "time": "2016-01-04 12:51:03"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "debach/php-typography": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

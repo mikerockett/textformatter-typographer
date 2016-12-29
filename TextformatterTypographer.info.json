@@ -1,0 +1,9 @@
+{
+	"title": "Typographer",
+	"version": "0.1.0",
+	"author": "Mike Rockett",
+	"summary": "TextformatterTypographer is a ProcessWire implemetation of PHP Typography by KINGdesk LLC.",
+	"requires": "ProcessWire>=2.8.0",
+	"license": "MIT",
+    "hreflicense": "http://mit-license.org/"
+}

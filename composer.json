@@ -1,0 +1,5 @@
+{
+    "require": {
+        "debach/php-typography": "dev-master"
+    }
+}
