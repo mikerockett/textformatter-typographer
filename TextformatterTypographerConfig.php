@@ -322,7 +322,7 @@ HTML
         // Wrap Email Addresses
         $fieldset->add($this->buildInputField('InputfieldCheckbox', [
             'name+id' => 'emailWrap',
-            'description' => $this->_("Email addresses can get fairly lengthy, and not all browsers will allow them break apart and line's end for efficient line-wrapping. This method will enable wrapping of email addresses by strategically inserting a zero-width-space after every non-alphanumeric character in the email address."),
+            'description' => $this->_("Email addresses can get fairly lengthy, and not all browsers will allow them break apart at line's end for efficient line-wrapping. This method will enable wrapping of email addresses by strategically inserting a zero-width-space after every non-alphanumeric character in the email address."),
             'label' => $this->_('Email Address Wrapping'),
             'label2' => $this->_('Wrap email addresses'),
             'collapsed' => Inputfield::collapsedNever,
@@ -332,7 +332,7 @@ HTML
         // Wrap URLs
         $fieldset->add($this->buildInputField('InputfieldCheckbox', [
             'name+id' => 'urlWrap',
-            'description' => $this->_("Much like email addresses, URLs can get fairly lengthy, and not all browsers will allow them break apart and line's end for efficient line-wrapping. This method will enable wrapping of URLs by strategically inserting zero-width-spaces. Wrapping points are conservatively inserted into the domain portion of the URL, and aggressively added to the subsequent path."),
+            'description' => $this->_("Much like email addresses, URLs can get fairly lengthy, and not all browsers will allow them break apart at line's end for efficient line-wrapping. This method will enable wrapping of URLs by strategically inserting zero-width-spaces. Wrapping points are conservatively inserted into the domain portion of the URL, and aggressively added to the subsequent path."),
             'label' => $this->_('URL Wrapping'),
             'label2' => $this->_('Wrap URLs'),
             'collapsed' => Inputfield::collapsedNever,
