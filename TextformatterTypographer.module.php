@@ -51,7 +51,9 @@ class TextformatterTypographer extends Textformatter
         }
 
         // Require composer libs and instatiate PhpTypography
-        require_once __DIR__ . '/vendor/autoload.php';
+        require_once __DIR__ . '/lib/PhpTypography.php';
+        require_once __DIR__ . '/lib/ParseHTML.php';
+        require_once __DIR__ . '/lib/ParseText.php';
         $typographer = new Debach\PhpTypography\PhpTypography();
 
         // Set package options, if `defaults` not set
