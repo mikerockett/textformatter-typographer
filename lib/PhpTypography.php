@@ -12,7 +12,14 @@
 	For web design services, please contact jeff@kingdesk.com.
 */
 
+
 namespace Debach\PhpTypography;
+
+// Require dependencies
+// Added: Mike Rockett
+// Reason: Composer not being used anymore due to submodule problems
+require_once __DIR__ . '/ParseHTML.php';
+require_once __DIR__ . '/ParseText.php';
 
 # if used with multibyte language, UTF-8 encoding is required!
 class PhpTypography {
