@@ -104,7 +104,7 @@ class TextformatterTypographer extends Textformatter
             #   appropriate properties on the Typography class.
             if (!empty($this->exclusions)) {
                 $exclusions = trim(str_replace('  ', ' ', $this->exclusions));
-                $exclusionsArray = [
+                $exclusionsArray = (object) [
                     'elements' => [],
                     'classes' => [],
                     'identifiers' => [],
@@ -112,19 +112,19 @@ class TextformatterTypographer extends Textformatter
                 foreach (explode(' ', $exclusions) as $exclusion) {
                     switch ($exclusion[0]) {
                         case '#':
-                            $exclusionsArray['identifiers'][] = ltrim($exclusion, '#');
+                            $exclusionsArray->identifiers[] = ltrim($exclusion, '#');
                             break;
                         case '.':
-                            $exclusionsArray['classes'][] = ltrim($exclusion, '.');
+                            $exclusionsArray->classes[] = ltrim($exclusion, '.');
                             break;
                         default:
-                            $exclusionsArray['elements'][] = $exclusion;
+                            $exclusionsArray->elements[] = $exclusion;
                             break;
                     }
                 }
-                $typographer->set_tags_to_ignore($exclusionsArray['elements']);
-                $typographer->set_classes_to_ignore($exclusionsArray['classes']);
-                $typographer->set_ids_to_ignore($exclusionsArray['identifiers']);
+                $typographer->set_tags_to_ignore($exclusionsArray->elements);
+                $typographer->set_classes_to_ignore($exclusionsArray->classes);
+                $typographer->set_ids_to_ignore($exclusionsArray->identifiers);
             }
         }
 
@@ -147,8 +147,41 @@ class TextformatterTypographer extends Textformatter
         return implode('_', $ret);
     }
 
-    public function styles()
+    /**
+     * Generate and import the stylesheet
+     * @param  array  $config
+     * @return string
+     */
+    public function styles($config = [])
     {
-        // return
+        // Initialise the configuration array and merge it with the one provided
+        $config = (object) array_merge([
+            'caps' => '96%',
+            'numbers' => '96%',
+            'dquo' => '-.41em',
+            'squo' => '-.06em',
+        ], $config);
+
+        // If caps or numbers is an integer/percentage, set the CSS attribute
+        // to font-size. Otherwise, set to family and enquote.
+        foreach (['caps', 'numbers'] as $type) {
+            $varName = "{$type}Method";
+            // if (strpos($config->$type, '.') === 0 || strpos($config->$type, '%') === 0) {
+            if (preg_match('/\.?\d+%?/', $config->$type)) {
+                $$varName = 'size';
+            } else {
+                $$varName = 'family';
+                $config->$type = "'{$config->$type}'";
+            }
+        }
+
+        $output = str_replace([' ', "\n"], '', trim("
+            span.caps { font-{$capsMethod}: {$config->caps} }
+            span.numbers { font-{$numbersMethod}: {$config->numbers} }
+            span.dquo { margin-left: {$config->dquo} }
+            span.squo { margin-left: {$config->squo} }
+        "));
+
+        return "<style type=\"text/css\">{$output}</style>";
     }
 }

@@ -64,7 +64,7 @@ class TextformatterTypographerConfig extends ModuleConfig
         $inputfields->add($this->buildInputField('InputfieldMarkup', array(
             'id' => 'information',
             'value' => <<<HTML
-                <p>This textformatter is a ProcessWire wrapper for the awesome PHP Typography class by KINGdesk LLC. Like Smartypants, it supercharges text fields with enhanced typography, such as Smart Quotes, hyphenation, and much more. For more details about what the typographer does, uncheck 'Use Typographer Details' below and read the configuration field descriptions that follow.</p>
+                <p>This textformatter is a ProcessWire wrapper for the awesome PHP Typography class by KINGdesk LLC. Like Smartypants, it supercharges text fields with enhanced typography, such as Smart Quotes, hyphenation, and much more. For more details about what the typographer does, uncheck 'Use Typographer Defaults' below and read the configuration field descriptions that follow.</p>
                 <p><b>Stylesheet:</b> You should make use of the stylesheet included with the module. In your template, simply call <code>print \$modules->TextformatterTypographer->styles();</code>. Alternatively, you are welcome to use your own stylesheet based on the original, giving consideration to your font-family and size.</p>
                 <p><b>Note:</b> It is recommended that this be the last Textformatter on the list for your fields.</p>
 HTML
@@ -270,30 +270,30 @@ HTML
             'showIf' => 'defaults=0,enabled=1',
         ]));
 
-        // Wrappers Fieldset
+        // Styles & Wrappers Fieldset
         $fieldset = $this->buildInputField('InputfieldFieldset', [
-            'label' => $this->_('Wrappers'),
+            'label' => $this->_('Stylers & Wrappers'),
             'showIf' => 'defaults=0,enabled=1',
         ]);
 
-        // Wrap CAPS
+        // Style CAPS
         $fieldset->add($this->buildInputField('InputfieldCheckbox', [
             'name+id' => 'styleCaps',
             'description' => $this->_("This option wraps consecutive capital letters in a span element for CSS styling."),
             'notes' => $this->_('The capital letters will be wrapped in `<span class="caps"></span>`.'),
-            'label' => $this->_('CAPS Wrapping'),
-            'label2' => $this->_('Wrap capital letters'),
+            'label' => $this->_('Capital Letter Styiling'),
+            'label2' => $this->_('Wrap capital letters in span element'),
             'collapsed' => Inputfield::collapsedNever,
             'autocheck' => true,
         ]));
 
-        // Wrap Numbers
+        // Style Numbers
         $fieldset->add($this->buildInputField('InputfieldCheckbox', [
             'name+id' => 'styleNumbers',
             'description' => $this->_("This option wraps numbers in a span element for CSS styling."),
             'notes' => $this->_('The numbers will be wrapped in `<span class="numbers"></span>`.'),
-            'label' => $this->_('Number Wrapping'),
-            'label2' => $this->_('Wrap numbers'),
+            'label' => $this->_('Number Styling'),
+            'label2' => $this->_('Wrap numbers in a span element'),
             'collapsed' => Inputfield::collapsedNever,
             'autocheck' => true,
         ]));
@@ -303,8 +303,8 @@ HTML
             'name+id' => 'styleAmpersands',
             'description' => $this->_("This option wraps ampersands (&amp;) in a span element for CSS styling."),
             'notes' => $this->_('The ampersand will be wrapped in `<span class="amp"></span>`.'),
-            'label' => $this->_('Ampersand Wrapping'),
-            'label2' => $this->_('Wrap ampersands'),
+            'label' => $this->_('Ampersand Styling'),
+            'label2' => $this->_('Wrap ampersands in a span element'),
             'collapsed' => Inputfield::collapsedNever,
             'autocheck' => true,
         ]));
