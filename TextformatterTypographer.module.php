@@ -18,12 +18,12 @@ class TextformatterTypographer extends Textformatter
     }
 
     /**
-     * Textformatter format
+     * Textformatter formatValue
      * @param $text
      */
-    public function format(&$text)
+    public function formatValue(Page $page, Field $field, &$value)
     {
-        $text = $this->typographer($text);
+        $value = $this->typographer($value);
     }
 
     /**
@@ -127,9 +127,6 @@ class TextformatterTypographer extends Textformatter
                 $typographer->set_ids_to_ignore($exclusionsArray['identifiers']);
             }
         }
-
-        #############################DONT INCLUDE IN TITLES DUE AS THESE SHOULD ONLY BE AFFECTED IN BODY
-        #PROVIDE SEPARATE METHOD FOR TITLES.
 
         // Process and return the incoming text
         return $typographer->process($input);
