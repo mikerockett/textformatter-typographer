@@ -1,7 +1,5 @@
 # TextformatterTypographer
 
-An alternative to SmartyPants for ProcessWire.
+Currently in beta (0.2.0), TextformatterTypographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.
 
-Learn more here: https://blog.rockett.pw/post/textformatter-typographer-alpha
-
-Please don't use this in a production site - chances are that things will change, especially with regards to how the configuration works. In terms of actual functionality, not much will change. If you intend on using the defaults, you *should* be good to go.
+**License:** MIT

@@ -1,0 +1,72 @@
+/**
+ * Copy this stylesheet to your assets directory or include in your main stylesheet.
+ * Then, modify the classes according to your font family and size.
+ *
+ * These defaults are based on the following paragraph style:
+ *
+ * p {
+ *      font-family: "Charter", serif;
+ *      font-size: 1.2rem; // 16px @ 120%
+ * }
+ */
+
+/* Style wrapped capitals */
+
+.capitals {
+    font-size: .94em;
+}
+
+
+/* Style wrapped numbers */
+
+.numbers {
+    font-size: .94em;
+}
+
+
+/* Style ampersand characters */
+
+.char-amp {}
+
+
+/* Style numerator characters */
+
+.char-numerator {}
+
+
+/* Style denominator characters */
+
+.char-denominator {}
+
+
+/* Style ordinal characters */
+
+.char-ordinal {}
+
+
+/* Style wrapped opening double-quotation marks */
+
+.pull-double {
+    margin-left: -.45em
+}
+
+.push-double {
+    margin-right: .45em
+}
+
+// Additional class for paragraphs that open with a double-quotation mark
+.pull-double.initial {}
+
+
+/* Style wrapped opening single-quotation marks */
+
+.pull-single {
+    margin-left: -.25em
+}
+
+.push-single {
+    margin-right: .25em
+}
+
+// Additional class for paragraphs that open with a single-quotation mark
+.pull-single.initial {}
