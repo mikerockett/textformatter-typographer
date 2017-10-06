@@ -1,5 +1,11 @@
-# TextformatterTypographer
+# Typographer for ProcessWire
 
-**About this Textformatter:** TextformatterTypographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer for wp-Typography. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.
+Currently in alpha, Typographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer for wp-Typography. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.
 
-**Licenses:** TextformatterTypographer is licensed under MIT, and the libraries it depends on have their own licenses. Please review these in the [license file](LICENSE.md).
+The textformatter is configurable. Feel free to visit its configuration page to see what can be toggled and configured. As the module is in alpha, there are plans to include more of the settings that are made available by PHP Typography. There are also plans to refactor a little bit, making use of a more automated approach and some proper autoloading, traits, etc. (this is a practice I’m implementing in all my modules as thay are upgraded).
+
+**Production usage:** At this point in time, Typographer is actually safe to use in production. However, expect that some things will change over time. I don’t expect changes to make an impact on how the module functions, so upgrades should be seamless.
+
+## Licenses
+
+The textformatter is licensed under MIT, and the libraries it depends on have their own licenses. Please review these in the [license file](LICENSE.md).

@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/lib/php-typography-autoload.php';
-
 class Typographer extends PHP_Typography\PHP_Typography
 {
     /**

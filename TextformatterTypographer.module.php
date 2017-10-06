@@ -39,16 +39,16 @@ class TextformatterTypographer extends Textformatter
     /**
      * Module typographer
      * Uses PHP Typographer, included via Composer.
-     * Home: http://kingdesk.com/projects/php-typography/
-     * Docs: http://kingdesk.com/projects/php-typography-documentation/
      * @param  $input
      * @return string
      */
     public function typographer($input)
     {
         // Require and instatiate Typography subclass
-        require_once __DIR__ . '/Typographer.php';
+        require_once(/*NoCompile*/__DIR__ . '/vendor/autoload.php');
+        require_once(/*NoCompile*/__DIR__ . '/Typographer.php');
         $typographer = new Typographer();
+        $settings = new \PHP_Typography\Settings();
 
         // BASIC OPTIONS
         //
@@ -86,7 +86,7 @@ class TextformatterTypographer extends Textformatter
         ] as $moduleOption) {
             $packageOption = $this->snakeCase($moduleOption);
             $methodName = "set_{$packageOption}";
-            $typographer->$methodName($this->$moduleOption);
+            $settings->$methodName($this->$moduleOption);
         }
 
         // PROPERTY LIST OPTIONS
@@ -101,7 +101,7 @@ class TextformatterTypographer extends Textformatter
             if (!empty($this->$config)) {
                 $settingName = $this->snakeCase($config);
                 $methodName = "set_{$settingName}";
-                $typographer->$methodName($this->parsePropertyList($this->$config, $propertySeparator));
+                $settings->$methodName($this->parsePropertyList($this->$config, $propertySeparator));
             }
         }
 
@@ -110,15 +110,15 @@ class TextformatterTypographer extends Textformatter
         // If the language is not empty, then we can set the language,
         // options, and word-exceptions. Otherwise, turn off hyphenation.
         if (!empty($this->hyphenationLanguage)) {
-            $typographer->set_hyphenation_language($this->hyphenationLanguage);
+            $settings->set_hyphenation_language($this->hyphenationLanguage);
             foreach ($this->hyphenationOptions as $option) {
                 $option = $this->snakeCase($option);
                 $method = "set_hyphenate_{$option}";
-                $typographer->$method(true);
+                $settings->$method(true);
             }
-            $typographer->set_hyphenation_exceptions(explode('|', $this->hyphenationExceptions));
+            $settings->set_hyphenation_exceptions(explode('|', $this->hyphenationExceptions));
         } else {
-            $typographer->set_hyphenation(false);
+            $settings->set_hyphenation(false);
         }
 
         // EXCLUSIONS
@@ -145,13 +145,13 @@ class TextformatterTypographer extends Textformatter
                         break;
                 }
             }
-            $typographer->set_tags_to_ignore($exclusionsArray->elements);
-            $typographer->set_classes_to_ignore($exclusionsArray->classes);
-            $typographer->set_ids_to_ignore($exclusionsArray->identifiers);
+            $settings->set_tags_to_ignore($exclusionsArray->elements);
+            $settings->set_classes_to_ignore($exclusionsArray->classes);
+            $settings->set_ids_to_ignore($exclusionsArray->identifiers);
         }
 
         // Process and return the incoming text
-        return $typographer->process($input);
+        return $typographer->process($input, $settings);
     }
 
     /**
