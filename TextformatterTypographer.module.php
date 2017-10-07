@@ -38,7 +38,7 @@ class TextformatterTypographer extends Textformatter
         // the ProcessWire FileCompile from touching anything.
         // Note: this is only done at method-call-time as it this is
         // not an autoload module.
-        require_once /*NoCompile*/__DIR__ . '/vendor/autoload.php';
+        require_once(/*NoCompile*/__DIR__ . '/vendor/autoload.php');
 
         // Run Typographer and return the converted input.
         $value = $this->typographer($value);
