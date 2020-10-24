@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes\Smart_Quotes_Fix;
-use \PHP_Typography\Settings;
-use \PHP_Typography\Settings\Quote_Style;
-use \PHP_Typography\Strings;
+use PHP_Typography\Fixes\Node_Fixes\Smart_Quotes_Fix;
+use PHP_Typography\Settings;
+use PHP_Typography\Settings\Quote_Style;
+use PHP_Typography\Strings;
 
 /**
  * Smart_Quotes_Fix unit test.
@@ -38,7 +38,6 @@ use \PHP_Typography\Strings;
  * @uses ::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::remove_adjacent_characters
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -52,22 +51,10 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Smart_Quotes_Fix();
-	}
-
-	/**
-	 * Tests the constructor.
-	 *
-	 * @covers ::__construct
-	 */
-	public function test_constructor() {
-		$this->fix = new Smart_Quotes_Fix();
-
-		$this->assertAttributeInternalType( 'array', 'apostrophe_exception_matches',      $this->fix );
-		$this->assertAttributeInternalType( 'array', 'apostrophe_exception_replacements', $this->fix );
 	}
 
 	/**
@@ -89,6 +76,10 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 			[ "2/4'",                              '2/4&prime;' ],
 			[ '3/44"',                             '3/44&Prime;' ],
 			[ '("Some" word',                      '(&ldquo;Some&rdquo; word' ],
+			[ 'Some "word")',                      'Some &ldquo;word&rdquo;)' ],
+			[ '"So \'this\'", she said',           '&ldquo;So &lsquo;this&rsquo;&#8239;&rdquo;, she said' ],
+			[ '"\'This\' is it?"',                 '&ldquo;&#8239;&lsquo;This&rsquo; is it?&rdquo;' ],
+			[ 'from the early \'60s, American',    'from the early &#700;60s, American' ],
 		];
 	}
 
@@ -99,7 +90,34 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 */
 	public function provide_smart_quotes_special_data() {
 		return [
-			[ '("Some" word', '(&raquo;Some&laquo; word', Quote_Style::DOUBLE_GUILLEMETS_REVERSED, Quote_Style::SINGLE_GUILLEMETS_REVERSED ],
+			[
+				'("Some" word',
+				'(&raquo;Some&laquo; word',
+				Quote_Style::DOUBLE_GUILLEMETS_REVERSED,
+				Quote_Style::SINGLE_GUILLEMETS_REVERSED,
+			],
+			[
+				'(sans franchir la case "carte de crédit")',
+				'(sans franchir la case &laquo;&#8239;carte de cr&eacute;dit&#8239;&raquo;)',
+				Quote_Style::DOUBLE_GUILLEMETS_FRENCH,
+				Quote_Style::SINGLE_GUILLEMETS_REVERSED,
+			],
+			[
+				' et <code>aria-labelledby</code>',
+				' et <code>aria-labelledby</code>',
+				Quote_Style::DOUBLE_GUILLEMETS_FRENCH,
+				Quote_Style::SINGLE_CURLED,
+				'"',
+				'',
+			],
+			[
+				'foo',
+				'foo',
+				Quote_Style::DOUBLE_GUILLEMETS_FRENCH,
+				Quote_Style::SINGLE_CURLED,
+				'"',
+				'"',
+			],
 		];
 	}
 
@@ -107,6 +125,7 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 * Test apply.
 	 *
 	 * @covers ::apply
+	 * @covers ::calc_adjacent_length
 	 *
 	 * @uses ::update_smart_quotes_brackets
 	 *
@@ -116,13 +135,16 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 * @param string $result    Expected entity-escaped result.
 	 * @param string $primary   Primary quote style.
 	 * @param string $secondary Secondard  quote style.
+	 * @param string $previous  Optional. Default ''.
+	 * @param string $next      Optional. Default ''.
 	 */
-	public function test_smart_quotes_special( $html, $result, $primary, $secondary ) {
+	public function test_smart_quotes_special( $html, $result, $primary, $secondary, $previous = '', $next = '' ) {
+		$this->s->set_tags_to_ignore( [ 'code' ] );
 		$this->s->set_smart_quotes( true );
 		$this->s->set_smart_quotes_primary( $primary );
 		$this->s->set_smart_quotes_secondary( $secondary );
 
-		$this->assertFixResultSame( $html, $result );
+		$this->assertFixResultSame( $html, $result, $previous, $next );
 	}
 
 	/**
@@ -130,6 +152,7 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 *
 	 * @covers ::apply
 	 * @covers ::update_smart_quotes_brackets
+	 * @covers ::calc_adjacent_length
 	 *
 	 * @dataProvider provide_smart_quotes_data
 	 *
@@ -146,6 +169,7 @@ class Smart_Quotes_Fix_Test extends Node_Fix_Testcase {
 	 * Test apply with left and right textnode siblings.
 	 *
 	 * @covers ::apply
+	 * @covers ::calc_adjacent_length
 	 *
 	 * @uses ::update_smart_quotes_brackets
 	 *

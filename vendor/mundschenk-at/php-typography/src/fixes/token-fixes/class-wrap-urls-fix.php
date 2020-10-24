@@ -27,13 +27,13 @@
 
 namespace PHP_Typography\Fixes\Token_Fixes;
 
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Hyphenator\Cache;
-use \PHP_Typography\RE;
-use \PHP_Typography\Settings;
-use \PHP_Typography\Text_Parser;
-use \PHP_Typography\Text_Parser\Token;
-use \PHP_Typography\U;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Hyphenator\Cache;
+use PHP_Typography\RE;
+use PHP_Typography\Settings;
+use PHP_Typography\Text_Parser;
+use PHP_Typography\Text_Parser\Token;
+use PHP_Typography\U;
 
 /**
  * Wraps URL parts zero-width spaces (if enabled).
@@ -108,20 +108,24 @@ class Wrap_URLs_Fix extends Hyphenate_Fix {
 	 * @return Token[] An array of tokens.
 	 */
 	public function apply( array $tokens, Settings $settings, $is_title = false, \DOMText $textnode = null ) {
-		if ( empty( $settings['urlWrap'] ) || empty( $settings['urlMinAfterWrap'] ) ) {
+		if ( empty( $settings[ Settings::URL_WRAP ] ) || empty( $settings[ Settings::URL_MIN_AFTER_WRAP ] ) ) {
 			return $tokens;
 		}
 
 		// Test for and parse urls.
 		foreach ( $tokens as $token_index => $text_token ) {
-			if ( preg_match( $this->url_pattern, $text_token->value, $url_match ) ) {
+			if ( \preg_match( $this->url_pattern, $text_token->value, $url_match ) ) {
 
 				// $url_match['schema'] holds "http://".
 				// $url_match['domain'] holds "subdomains.domain.tld".
 				// $url_match['path']   holds the path after the domain.
 				$http = ( $url_match['schema'] ) ? $url_match[1] . U::ZERO_WIDTH_SPACE : '';
 
-				$domain_parts = preg_split( self::WRAP_URLS_DOMAIN_PARTS, $url_match['domain'], -1, PREG_SPLIT_DELIM_CAPTURE );
+				$domain_parts = \preg_split( self::WRAP_URLS_DOMAIN_PARTS, $url_match['domain'], -1, PREG_SPLIT_DELIM_CAPTURE );
+				if ( false === $domain_parts ) {
+					// Should not happen.
+					continue;  // @codeCoverageIgnore
+				}
 
 				// This is a hack, but it works.
 				// First, we hyphenate each part, we need it formated like a group of words.
@@ -137,7 +141,7 @@ class Wrap_URLs_Fix extends Hyphenate_Fix {
 				foreach ( $parsed_words_like as $key => $parsed_word ) {
 					$value = $parsed_word->value;
 
-					if ( $key > 0 && 1 === strlen( $value ) ) {
+					if ( $key > 0 && 1 === \strlen( $value ) ) {
 						$domain_parts[ $key ] = U::ZERO_WIDTH_SPACE . $value;
 					} else {
 						$domain_parts[ $key ] = $value;
@@ -145,14 +149,14 @@ class Wrap_URLs_Fix extends Hyphenate_Fix {
 				}
 
 				// Lastly let's recombine.
-				$domain = implode( $domain_parts );
+				$domain = \implode( '', $domain_parts );
 
 				// Break up the URL path to individual characters.
-				$path_parts = str_split( $url_match['path'], 1 );
-				$path_count = count( $path_parts );
-				$path = '';
+				$path_parts = \str_split( $url_match['path'], 1 );
+				$path_count = \count( $path_parts );
+				$path       = '';
 				foreach ( $path_parts as $index => $path_part ) {
-					if ( 0 === $index || $path_count - $index < $settings['urlMinAfterWrap'] ) {
+					if ( 0 === $index || $path_count - $index < $settings[ Settings::URL_MIN_AFTER_WRAP ] ) {
 						$path .= $path_part;
 					} else {
 						$path .= U::ZERO_WIDTH_SPACE . $path_part;

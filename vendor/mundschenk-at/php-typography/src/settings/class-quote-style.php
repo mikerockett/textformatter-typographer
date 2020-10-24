@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 
 namespace PHP_Typography\Settings;
 
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * A factory class for different quote styles.
@@ -43,21 +43,17 @@ abstract class Quote_Style {
 	const DOUBLE_CURLED_REVERSED     = 'doubleCurledReversed';
 	const DOUBLE_LOW_9               = 'doubleLow9';
 	const DOUBLE_LOW_9_REVERSED      = 'doubleLow9Reversed';
-
 	const SINGLE_CURLED              = 'singleCurled';
 	const SINGLE_CURLED_REVERSED     = 'singleCurledReversed';
 	const SINGLE_LOW_9               = 'singleLow9';
 	const SINGLE_LOW_9_REVERSED      = 'singleLow9Reversed';
-
 	const DOUBLE_GUILLEMETS          = 'doubleGuillemets';
 	const DOUBLE_GUILLEMETS_REVERSED = 'doubleGuillemetsReversed';
 	const DOUBLE_GUILLEMETS_FRENCH   = 'doubleGuillemetsFrench';
-
 	const SINGLE_GUILLEMETS          = 'singleGuillemets';
 	const SINGLE_GUILLEMETS_REVERSED = 'singleGuillemetsReversed';
-
-	const CORNER_BRACKETS             = 'cornerBrackets';
-	const WHITE_CORNER_BRACKETS       = 'whiteCornerBracket';
+	const CORNER_BRACKETS            = 'cornerBrackets';
+	const WHITE_CORNER_BRACKETS      = 'whiteCornerBracket';
 
 	/**
 	 * Available quote styles.
@@ -105,6 +101,10 @@ abstract class Quote_Style {
 			self::_OPEN  => U::GUILLEMET_CLOSE,
 			self::_CLOSE => U::GUILLEMET_OPEN,
 		],
+		self::DOUBLE_GUILLEMETS_FRENCH   => [
+			self::_OPEN  => U::GUILLEMET_OPEN . U::NO_BREAK_NARROW_SPACE,
+			self::_CLOSE => U::NO_BREAK_NARROW_SPACE . U::GUILLEMET_CLOSE,
+		],
 		self::SINGLE_GUILLEMETS          => [
 			self::_OPEN  => U::SINGLE_ANGLE_QUOTE_OPEN,
 			self::_CLOSE => U::SINGLE_ANGLE_QUOTE_CLOSE,
@@ -144,20 +144,16 @@ abstract class Quote_Style {
 	/**
 	 * Creates a new Quotes object in the given style.
 	 *
+	 * @since 6.5.0 The $settings parameter has been deprecated.
+	 *
 	 * @param string   $style    The quote style.
 	 * @param Settings $settings The current settings.
 	 *
 	 * @return Quotes|null Returns null in case of an invalid $style parameter.
 	 */
-	public static function get_styled_quotes( $style, Settings $settings ) {
+	public static function get_styled_quotes( $style, /** Currently unused. @scrutinizer ignore-unused */ Settings $settings ) {
 		if ( isset( self::$styles[ $style ] ) ) {
 			return new Simple_Quotes( self::$styles[ $style ][ self::_OPEN ], self::$styles[ $style ][ self::_CLOSE ] );
-		}
-
-		if ( self::DOUBLE_GUILLEMETS_FRENCH === $style ) {
-			$space = $settings->no_break_narrow_space();
-
-			return new Simple_Quotes( U::GUILLEMET_OPEN . $space, $space . U::GUILLEMET_CLOSE );
 		}
 
 		return null;

@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@
 
 namespace PHP_Typography\Fixes\Node_Fixes;
 
-use \PHP_Typography\DOM;
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\DOM;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * Applies smart ellipses (if enabled).
@@ -47,11 +47,17 @@ class Smart_Ellipses_Fix extends Abstract_Node_Fix {
 	 * @param bool     $is_title Optional. Default false.
 	 */
 	public function apply( \DOMText $textnode, Settings $settings, $is_title = false ) {
-		if ( empty( $settings['smartEllipses'] ) ) {
+		if ( empty( $settings[ Settings::SMART_ELLIPSES ] ) ) {
 			return;
 		}
 
-		$textnode->data = str_replace( [ '....', '. . . .' ], '.' . U::ELLIPSIS, $textnode->data );
-		$textnode->data = str_replace( [ '...', '. . .' ],          U::ELLIPSIS, $textnode->data );
+		// Cache textnode content.
+		$node_data = $textnode->data;
+
+		$node_data = \str_replace( [ '....', '. . . .' ], '.' . U::ELLIPSIS, $node_data );
+		$node_data = \str_replace( [ '...', '. . .' ],          U::ELLIPSIS, $node_data );
+
+		// Restore textnode content.
+		$textnode->data = $node_data;
 	}
 }

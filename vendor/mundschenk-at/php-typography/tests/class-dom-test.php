@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 namespace PHP_Typography\Tests;
 
-use \PHP_Typography\DOM;
+use PHP_Typography\DOM;
 
 /**
  * DOM unit test.
@@ -32,7 +32,7 @@ use \PHP_Typography\DOM;
  * @coversDefaultClass \PHP_Typography\DOM
  * @usesDefaultClass \PHP_Typography\DOM
  */
-class DOM_Test extends PHP_Typography_Testcase {
+class DOM_Test extends Testcase {
 
 	/**
 	 * HTML parser.
@@ -45,17 +45,10 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		$this->parser = new \Masterminds\HTML5( [
-			'disable_html_ns' => true,
-		] );
-	}
+	protected function set_up() {
+		parent::set_up();
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() { // @codingStandardsIgnoreLine
+		$this->parser = new \Masterminds\HTML5( [ 'disable_html_ns' => true ] );
 	}
 
 	/**
@@ -76,7 +69,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_block_tags() {
 		$block_tags = DOM::block_tags( true );
-		$this->assertInternalType( 'array', $block_tags );
+		$this->assert_is_array( $block_tags );
 
 		$tag_names = array_keys( $block_tags );
 		$this->assertContainsOnly( 'string', $tag_names );
@@ -101,7 +94,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_inappropriate_tags() {
 		$inappropriate_tags = DOM::inappropriate_tags( true );
-		$this->assertInternalType( 'array', $inappropriate_tags );
+		$this->assert_is_array( $inappropriate_tags );
 
 		$tag_names = array_keys( $inappropriate_tags );
 		$this->assertContainsOnly( 'string', $tag_names );
@@ -131,13 +124,11 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @covers ::nodelist_to_array
 	 */
 	public function test_nodelist_to_array() {
-		$parser = new \Masterminds\HTML5( [
-			'disable_html_ns' => true,
-		] );
-		$dom = $parser->loadHTML( '<body><p>blabla</p><ul><li>foo</li><li>bar</li></ul></body>' );
-		$xpath = new \DOMXPath( $dom );
+		$parser = new \Masterminds\HTML5( [ 'disable_html_ns' => true ] );
+		$dom    = $parser->loadHTML( '<body><p>blabla</p><ul><li>foo</li><li>bar</li></ul></body>' );
+		$xpath  = new \DOMXPath( $dom );
 
-		$node_list = $xpath->query( '//*' );
+		$node_list  = $xpath->query( '//*' );
 		$node_array = DOM::nodelist_to_array( $node_list );
 
 		$this->assertGreaterThan( 1, $node_list->length );
@@ -172,14 +163,12 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @param  string $xpath_query XPath query.
 	 */
 	public function test_get_ancestors( $html, $xpath_query ) {
-		$parser = new \Masterminds\HTML5( [
-			'disable_html_ns' => true,
-		] );
-		$dom = $parser->loadHTML( '<body>' . $html . '</body>' );
-		$xpath = new \DOMXPath( $dom );
+		$parser = new \Masterminds\HTML5( [ 'disable_html_ns' => true ] );
+		$dom    = $parser->loadHTML( '<body>' . $html . '</body>' );
+		$xpath  = new \DOMXPath( $dom );
 
-		$origin = $xpath->query( $xpath_query )->item( 0 );
-		$ancestor_array = DOM::get_ancestors( $origin );
+		$origin               = $xpath->query( $xpath_query )->item( 0 );
+		$ancestor_array       = DOM::get_ancestors( $origin );
 		$ancestor_array_xpath = DOM::nodelist_to_array( $xpath->query( 'ancestor::*', $origin ) );
 
 		$this->assertSame( count( $ancestor_array ), count( $ancestor_array_xpath ) );
@@ -221,11 +210,9 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @param  bool   $result      Expected result.
 	 */
 	public function test_has_class( $html, $xpath_query, $classnames, $result ) {
-		$parser = new \Masterminds\HTML5( [
-			'disable_html_ns' => true,
-		] );
-		$dom = $parser->loadHTML( '<body>' . $html . '</body>' );
-		$xpath = new \DOMXPath( $dom );
+		$parser = new \Masterminds\HTML5( [ 'disable_html_ns' => true ] );
+		$dom    = $parser->loadHTML( '<body>' . $html . '</body>' );
+		$xpath  = new \DOMXPath( $dom );
 
 		$nodes = $xpath->query( $xpath_query );
 		foreach ( $nodes as $node ) {
@@ -255,6 +242,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * Test get_block_parent.
 	 *
 	 * @covers ::get_block_parent
+	 * @covers ::is_block_tag
 	 *
 	 * @dataProvider provide_get_block_parent_data
 	 *
@@ -264,10 +252,10 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @param string $html         HTML code.
 	 */
 	public function test_get_block_parent( $input_xpath, $parent_xpath, $parent_tag, $html ) {
-		$doc = $this->load_html( $html );
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
-		$input_node  = $xpath->query( $input_xpath )->item( 0 ); // really only one.
+		$input_node = $xpath->query( $input_xpath )->item( 0 ); // really only one.
 
 		if ( ! empty( $parent_xpath ) ) {
 			$parent_node = $xpath->query( $parent_xpath )->item( 0 ); // really only one.
@@ -288,6 +276,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_block_parent_name
 	 *
 	 * @uses ::get_block_parent
+	 * @uses ::is_block_tag
 	 *
 	 * @dataProvider provide_get_block_parent_data
 	 *
@@ -297,10 +286,10 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @param string $html         HTML code.
 	 */
 	public function test_get_block_parent_name( $input_xpath, $parent_xpath, $parent_tag, $html ) {
-		$doc = $this->load_html( $html );
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
-		$input_node  = $xpath->query( $input_xpath )->item( 0 ); // really only one.
+		$input_node = $xpath->query( $input_xpath )->item( 0 ); // really only one.
 
 		$this->assertSame( $parent_tag, DOM::get_block_parent_name( $input_node ) );
 	}
@@ -312,14 +301,15 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_adjacent_chr
 	 * @covers ::get_previous_textnode
 	 * @covers ::get_adjacent_textnode
+	 * @covers ::is_block_tag
 	 *
 	 * @uses ::get_last_textnode
 	 * @uses ::get_edge_textnode
 	 * @uses PHP_Typography\Strings::functions
 	 */
 	public function test_get_prev_chr() {
-		$html = '<p><span>A</span><span id="foo">new hope.</span></p><p><span id="bar">The empire</span> strikes back.</p<';
-		$doc = $this->load_html( $html );
+		$html  = '<p><span>A</span><span id="foo">new hope.</span></p><p><span id="bar">The empire</span> strikes back.</p<';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( "//*[@id='foo']/text()" ); // really only one.
@@ -336,6 +326,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_previous_textnode
 	 * @covers ::get_adjacent_textnode
+	 * @covers ::is_block_tag
 	 */
 	public function test_get_previous_textnode_null() {
 		$node = DOM::get_previous_textnode( null );
@@ -349,14 +340,15 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_adjacent_chr
 	 * @covers ::get_next_textnode
 	 * @covers ::get_adjacent_textnode
+	 * @covers ::is_block_tag
 	 *
 	 * @uses ::get_first_textnode
 	 * @uses ::get_edge_textnode
 	 * @uses PHP_Typography\Strings::functions
 	 */
 	public function test_get_next_chr() {
-		$html = '<p><span id="foo">A</span><span id="bar">new hope.</span></p><p><span>The empire</span> strikes back.</p<';
-		$doc = $this->load_html( $html );
+		$html  = '<p><span id="foo">A</span><span id="bar">new hope.</span></p><p><span>The empire</span> strikes back.</p<';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( "//*[@id='foo']/text()" ); // really only one.
@@ -373,6 +365,7 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_next_textnode
 	 * @covers ::get_adjacent_textnode
+	 * @covers ::is_block_tag
 	 */
 	public function test_get_next_textnode_null() {
 		$node = DOM::get_next_textnode( null );
@@ -385,26 +378,27 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_first_textnode
 	 * @covers ::get_edge_textnode
+	 * @covers ::is_block_tag
 	 */
 	public function test_get_first_textnode() {
-		$html = '<p><span id="foo">A</span><span id="bar">new hope.</span></p>';
-		$doc = $this->load_html( $html );
+		$html  = '<p><span id="foo">A</span><span id="bar">new hope.</span></p>';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( "//*[@id='foo']/text()" ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'A', $node->nodeValue );
 
 		$textnodes = $xpath->query( "//*[@id='foo']" ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'A', $node->nodeValue );
 
 		$textnodes = $xpath->query( "//*[@id='bar']" ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'new hope.', $node->nodeValue );
 
 		$textnodes = $xpath->query( '//p' ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'A', $node->nodeValue );
 	}
 
@@ -427,14 +421,15 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_first_textnode
 	 * @covers ::get_edge_textnode
+	 * @covers ::is_block_tag
 	 */
 	public function test_get_first_textnode_only_block_level() {
-		$html = '<div><div id="foo">No</div><div id="bar">hope</div></div>';
-		$doc = $this->load_html( $html );
+		$html  = '<div><div id="foo">No</div><div id="bar">hope</div></div>';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( '//div' ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertNull( $node );
 	}
 
@@ -443,29 +438,30 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_last_textnode
 	 * @covers ::get_edge_textnode
+	 * @covers ::is_block_tag
 	 *
 	 * @uses ::get_first_textnode
 	 */
 	public function test_get_last_textnode() {
 
-		$html = '<p><span id="foo">A</span><span id="bar">new hope.</span> Really.</p>';
-		$doc = $this->load_html( $html );
+		$html  = '<p><span id="foo">A</span><span id="bar">new hope.</span> Really.</p>';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( "//*[@id='foo']/text()" ); // really only one.
-		$node = DOM::get_last_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_last_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'A', $node->nodeValue );
 
 		$textnodes = $xpath->query( "//*[@id='foo']" ); // really only one.
-		$node = DOM::get_last_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_last_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'A', $node->nodeValue );
 
 		$textnodes = $xpath->query( "//*[@id='bar']" ); // really only one.
-		$node = DOM::get_first_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_first_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( 'new hope.', $node->nodeValue );
 
 		$textnodes = $xpath->query( '//p' ); // really only one.
-		$node = DOM::get_last_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_last_textnode( $textnodes->item( 0 ) );
 		$this->assertSame( ' Really.', $node->nodeValue );
 	}
 
@@ -489,14 +485,15 @@ class DOM_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::get_last_textnode
 	 * @covers ::get_edge_textnode
+	 * @covers ::is_block_tag
 	 */
 	public function test_get_last_textnode_only_block_level() {
-		$html = '<div><div id="foo">No</div><div id="bar">hope</div></div>';
-		$doc = $this->load_html( $html );
+		$html  = '<div><div id="foo">No</div><div id="bar">hope</div></div>';
+		$doc   = $this->load_html( $html );
 		$xpath = new \DOMXPath( $doc );
 
 		$textnodes = $xpath->query( '//div' ); // really only one.
-		$node = DOM::get_last_textnode( $textnodes->item( 0 ) );
+		$node      = DOM::get_last_textnode( $textnodes->item( 0 ) );
 		$this->assertNull( $node );
 	}
 }

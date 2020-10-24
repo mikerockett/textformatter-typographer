@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Fixes\Token_Fixes\Hyphenate_Fix;
-use \PHP_Typography\Hyphenator_Cache;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Fixes\Token_Fixes\Hyphenate_Fix;
+use PHP_Typography\Hyphenator\Cache;
+use PHP_Typography\Settings;
 
 /**
  * Process_Words_Fix unit test.
@@ -37,7 +37,6 @@ use \PHP_Typography\Settings;
  * @usesDefaultClass \PHP_Typography\Fixes\Node_Fixes\Process_Words_Fix
  *
  * @uses ::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -59,8 +58,8 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Node_Fixes\Process_Words_Fix();
 	}
@@ -87,7 +86,7 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 	 * @uses PHP_Typography\Text_Parser::__construct
 	 */
 	public function test_get_text_parser() {
-		$this->assertAttributeEmpty( 'text_parser', $this->fix );
+		$this->assert_attribute_empty( 'text_parser', $this->fix );
 
 		$parser1 = $this->fix->get_text_parser();
 		$this->assertInstanceOf( '\PHP_Typography\Text_Parser', $parser1 );
@@ -96,7 +95,7 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 		$this->assertInstanceOf( '\PHP_Typography\Text_Parser', $parser2 );
 
 		$this->assertSame( $parser1, $parser2 );
-		$this->assertAttributeInstanceOf( '\PHP_Typography\Text_Parser', 'text_parser', $this->fix );
+		$this->assert_attribute_instance_of( '\PHP_Typography\Text_Parser', 'text_parser', $this->fix );
 	}
 
 	/**
@@ -139,7 +138,7 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 		$fake_token_fixer->method( 'target' )->willReturn( Token_Fix::MIXED_WORDS );
 
 		$this->fix->register_token_fix( $fake_token_fixer );
-		$this->assertAttributeContains( $fake_token_fixer, 'token_fixes', $this->fix, 'The registered fixer is not present in the $token_fixes array.' );
+		$this->assert_attribute_contains( $fake_token_fixer, 'token_fixes', $this->fix, 'The registered fixer is not present in the $token_fixes array.' );
 	}
 
 	/**
@@ -152,8 +151,8 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 	 * @uses PHP_Typography\Fixes\Token_Fixes\Abstract_Token_Fix::__construct
 	 */
 	public function test_update_hyphenator_cache() {
-		// Create a stub for the Hyphenator_Cache class.
-		$fake_cache = $this->createMock( Hyphenator_Cache::class );
+		// Create a stub for the Hyphenator\Cache class.
+		$fake_cache = $this->createMock( Cache::class );
 
 		// Create a stub for the Hyphenate_Fix class.
 		$token_fixer = new Hyphenate_Fix();
@@ -161,6 +160,6 @@ class Process_Words_Fix_Test extends Node_Fix_Testcase {
 		$this->fix->register_token_fix( $token_fixer );
 		$this->fix->update_hyphenator_cache( $fake_cache );
 
-		$this->assertAttributeSame( $fake_cache, 'cache', $token_fixer, 'The hyphenator cache was not update correctly.' );
+		$this->assert_attribute_same( $fake_cache, 'cache', $token_fixer, 'The hyphenator cache was not update correctly.' );
 	}
 }

@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 
 namespace PHP_Typography\Tests\Fixes\Token_Fixes;
 
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Fixes\Token_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Fixes\Token_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Wrap_Emails_Fix unit test.
@@ -51,8 +51,8 @@ class Wrap_Emails_Fix_Test extends Token_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Token_Fixes\Wrap_Emails_Fix();
 	}
@@ -65,8 +65,8 @@ class Wrap_Emails_Fix_Test extends Token_Fix_Testcase {
 	public function test_constructor() {
 		$fix = new Token_Fixes\Wrap_Emails_Fix( true );
 
-		$this->assertAttributeEquals( Token_Fix::OTHER, 'target', $fix, 'The fixer should be targetting OTHER tokens.' );
-		$this->assertAttributeEquals( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
+		$this->assert_attribute_same( Token_Fix::OTHER, 'target', $fix, 'The fixer should be targetting OTHER tokens.' );
+		$this->assert_attribute_same( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
 	}
 
 
@@ -79,7 +79,7 @@ class Wrap_Emails_Fix_Test extends Token_Fix_Testcase {
 		return [
 			[ 'code@example.org',         'code@&#8203;example.&#8203;org' ],
 			[ 'some.name@sub.domain.org', 'some.&#8203;name@&#8203;sub.&#8203;domain.&#8203;org' ],
-			[ 'funny123@summer1.org',     'funny1&#8203;2&#8203;3&#8203;@&#8203;summer1&#8203;.&#8203;org' ],
+			[ 'funny123@summer1.org',     'funny123@&#8203;summer1.&#8203;org' ],
 		];
 	}
 

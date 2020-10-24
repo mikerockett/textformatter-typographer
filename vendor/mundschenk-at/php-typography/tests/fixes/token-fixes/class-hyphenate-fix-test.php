@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 
 namespace PHP_Typography\Tests\Fixes\Token_Fixes;
 
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Fixes\Token_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Fixes\Token_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Hyphenate_Fix unit test.
@@ -58,8 +58,8 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Token_Fixes\Hyphenate_Fix();
 	}
@@ -72,8 +72,8 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 	public function test_constructor() {
 		$fix = new Token_Fixes\Hyphenate_Fix( null, Token_Fix::COMPOUND_WORDS, true );
 
-		$this->assertAttributeEquals( Token_Fix::COMPOUND_WORDS, 'target', $fix, 'The fixer should be targetting COMPOUND_WORDS tokens.' );
-		$this->assertAttributeEquals( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
+		$this->assert_attribute_same( Token_Fix::COMPOUND_WORDS, 'target', $fix, 'The fixer should be targetting COMPOUND_WORDS tokens.' );
+		$this->assert_attribute_same( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
 	}
 
 	/**
@@ -97,13 +97,13 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 		$this->s->set_hyphenate_all_caps( true );
 		$this->s->set_hyphenate_title_case( true );
 
-		$tokens = $this->tokenize( mb_convert_encoding( 'Änderungsmeldung', 'ISO-8859-2' ) );
-		$hyphenated = $this->invokeMethod( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
-		$this->assertTokensSame( $hyphenated, $tokens );
+		$tokens     = $this->tokenize( mb_convert_encoding( 'Änderungsmeldung', 'ISO-8859-2' ) );
+		$hyphenated = $this->invoke_method( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
+		$this->assert_tokens_same( $hyphenated, $tokens );
 
-		$tokens = $this->tokenize( 'Änderungsmeldung' );
-		$hyphenated = $this->invokeMethod( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
-		$this->assertTokensNotSame( $hyphenated, $tokens, 'Different encodings should not be equal.' );
+		$tokens     = $this->tokenize( 'Änderungsmeldung' );
+		$hyphenated = $this->invoke_method( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
+		$this->assert_tokens_not_same( $hyphenated, $tokens, 'Different encodings should not be equal.' );
 	}
 
 
@@ -128,8 +128,8 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 		$this->s->set_hyphenate_all_caps( true );
 		$this->s->set_hyphenate_title_case( false );
 
-		$tokens = $this->tokenize( 'Änderungsmeldung' );
-		$hyphenated = $this->invokeMethod( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
+		$tokens     = $this->tokenize( 'Änderungsmeldung' );
+		$hyphenated = $this->invoke_method( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
 		$this->assertEquals( $tokens, $hyphenated );
 	}
 
@@ -154,10 +154,10 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 		$this->s->set_hyphenate_all_caps( true );
 		$this->s->set_hyphenate_title_case( false );
 
-		$this->s['hyphenMinBefore'] = 0; // invalid value.
+		$this->s[ Settings::HYPHENATION_MIN_BEFORE ] = 0; // invalid value.
 
-		$tokens = $this->tokenize( 'Änderungsmeldung' );
-		$hyphenated = $this->invokeMethod( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
+		$tokens     = $this->tokenize( 'Änderungsmeldung' );
+		$hyphenated = $this->invoke_method( $this->fix, 'do_hyphenate', [ $tokens, $this->s ] );
 		$this->assertEquals( $tokens, $hyphenated );
 	}
 
@@ -173,18 +173,18 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 	 * @uses PHP_Typography\Hyphenator\Trie_Node
 	 */
 	public function test_get_hyphenator() {
-		$this->s['hyphenMinLength']             = 2;
-		$this->s['hyphenMinBefore']             = 2;
-		$this->s['hyphenMinAfter']              = 2;
-		$this->s['hyphenationCustomExceptions'] = [ 'foo-bar' ];
-		$this->s['hyphenLanguage']              = 'en-US';
-		$h = $this->fix->get_hyphenator( $this->s );
+		$this->s[ Settings::HYPHENATION_MIN_LENGTH ]        = 2;
+		$this->s[ Settings::HYPHENATION_MIN_BEFORE ]        = 2;
+		$this->s[ Settings::HYPHENATION_MIN_AFTER ]         = 2;
+		$this->s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] = [ 'foo-bar' ];
+		$this->s[ Settings::HYPHENATION_LANGUAGE ]          = 'en-US';
 
+		$h = $this->fix->get_hyphenator( $this->s );
 		$this->assertInstanceOf( \PHP_Typography\Hyphenator::class, $h );
 
-		$this->s['hyphenationCustomExceptions'] = [ 'bar-foo' ];
-		$h = $this->fix->get_hyphenator( $this->s );
+		$this->s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] = [ 'bar-foo' ];
 
+		$h = $this->fix->get_hyphenator( $this->s );
 		$this->assertInstanceOf( \PHP_Typography\Hyphenator::class, $h );
 	}
 
@@ -201,14 +201,14 @@ class Hyphenate_Fix_Test extends Token_Fix_Testcase {
 	public function test_set_hyphenator_cache() {
 
 		// Initial set-up.
-		$internal_cache = $this->getValue( $this->fix, 'cache' );
+		$internal_cache = $this->get_value( $this->fix, 'cache' );
 		$cache          = new \PHP_Typography\Hyphenator\Cache();
 
 		$this->fix->set_hyphenator_cache( $cache );
 
 		// Retrieve cache and assert results.
 		$this->assertNotSame( $cache, $internal_cache );
-		$this->assertSame( $cache, $this->getValue( $this->fix, 'cache' ) );
+		$this->assertSame( $cache, $this->get_value( $this->fix, 'cache' ) );
 	}
 
 

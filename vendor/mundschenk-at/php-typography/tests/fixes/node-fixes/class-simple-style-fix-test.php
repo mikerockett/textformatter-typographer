@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Simple_Style_Fix unit test.
@@ -38,7 +38,6 @@ use \PHP_Typography\Settings;
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Classes_Dependent_Fix::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Simple_Style_Fix::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -50,14 +49,6 @@ use \PHP_Typography\Settings;
 class Simple_Style_Fix_Test extends Node_Fix_Testcase {
 
 	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
-	}
-
-	/**
 	 * Tests the constructor.
 	 *
 	 * @covers ::__construct
@@ -65,9 +56,9 @@ class Simple_Style_Fix_Test extends Node_Fix_Testcase {
 	public function test_constructor() {
 		$this->fix = $this->getMockForAbstractClass( Node_Fixes\Simple_Style_Fix::class, [ '/(.*)/', 'fooBar', 'some-class' ] );
 
-		$this->assertAttributeEquals( '/(.*)/',     'regex',           $this->fix );
-		$this->assertAttributeEquals( 'fooBar',     'settings_switch', $this->fix );
-		$this->assertAttributeEquals( 'some-class', 'css_class',       $this->fix );
+		$this->assert_attribute_same( '/(.*)/',     'regex',           $this->fix );
+		$this->assert_attribute_same( 'fooBar',     'settings_switch', $this->fix );
+		$this->assert_attribute_same( 'some-class', 'css_class',       $this->fix );
 	}
 
 	/**
@@ -89,6 +80,7 @@ class Simple_Style_Fix_Test extends Node_Fix_Testcase {
 	 * @uses ::apply
 	 * @uses PHP_Typography\Text_Parser
 	 * @uses PHP_Typography\Text_Parser\Token
+	 * @uses PHP_Typography\RE::escape_tags
 	 *
 	 * @dataProvider provide_apply_internal_data
 	 *

@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,13 +49,13 @@ interface U {
 	const HAIR_SPACE                 = "\xe2\x80\x8a";
 	const ZERO_WIDTH_SPACE           = "\xe2\x80\x8b";
 	const HYPHEN_MINUS               = '-';
-	const HYPHEN                     = self::HYPHEN_MINUS; // "\xe2\x80\x90"; // should be Strings::_uchr(8208), but IE6 chokes.
+	const HYPHEN                     = "\xe2\x80\x90";
 	const NO_BREAK_HYPHEN            = "\xe2\x80\x91";
 	const EN_DASH                    = "\xe2\x80\x93";
 	const EM_DASH                    = "\xe2\x80\x94";
 	const SINGLE_QUOTE_OPEN          = "\xe2\x80\x98";
 	const SINGLE_QUOTE_CLOSE         = "\xe2\x80\x99";
-	const APOSTROPHE                 = "\xe2\x80\x99"; // defined seperate from SINGLE_QUOTE_CLOSE to preserve semantics.
+	const APOSTROPHE                 = "\xca\xbc"; // This is the "MODIFIER LETTER APOSTROPHE".
 	const SINGLE_LOW_9_QUOTE         = "\xe2\x80\x9a";
 	const DOUBLE_QUOTE_OPEN          = "\xe2\x80\x9c";
 	const DOUBLE_QUOTE_CLOSE         = "\xe2\x80\x9d";
@@ -74,4 +74,5 @@ interface U {
 	const RIGHT_CORNER_BRACKET       = "\xe3\x80\x8d";
 	const LEFT_WHITE_CORNER_BRACKET  = "\xe3\x80\x8e";
 	const RIGHT_WHITE_CORNER_BRACKET = "\xe3\x80\x8f";
+
 }

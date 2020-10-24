@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2016-2017 Peter Putzer.
+ *  Copyright 2016-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 namespace PHP_Typography\Tests\Hyphenator;
 
-use \PHP_Typography\Tests\PHP_Typography_Testcase;
+use PHP_Typography\Tests\Testcase;
 
 /**
  * Test Hyphenator\Cache class.
@@ -34,7 +34,7 @@ use \PHP_Typography\Tests\PHP_Typography_Testcase;
  *
  * @uses PHP_Typography\Hyphenator
  */
-class Cache_Test extends PHP_Typography_Testcase {
+class Cache_Test extends Testcase {
 	/**
 	 * Hyphenator\Cache fixture.
 	 *
@@ -46,16 +46,10 @@ class Cache_Test extends PHP_Typography_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() {
-		$this->c = new \PHP_Typography\Hyphenator\Cache();
-	}
+	protected function set_up() {
+		parent::set_up();
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() {
-		$this->c = null;
+		$this->c = new \PHP_Typography\Hyphenator\Cache();
 	}
 
 	/**
@@ -72,7 +66,7 @@ class Cache_Test extends PHP_Typography_Testcase {
 		$this->c->set_hyphenator( 'de', $this->createMock( \PHP_Typography\Hyphenator::class ) );
 		$this->assertTrue( $this->c->has_changed() );
 
-		$new_c = unserialize( serialize( $this->c ) ); // @codingStandardsIgnoreLine
+		$new_c = unserialize( serialize( $this->c ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize,WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 		$this->assertInstanceOf( \PHP_Typography\Hyphenator\Cache::class, $new_c );
 		$this->assertInstanceOf( \PHP_Typography\Hyphenator::class, $new_c->get_hyphenator( 'de' ) );
 		$this->assertFalse( $new_c->has_changed() );

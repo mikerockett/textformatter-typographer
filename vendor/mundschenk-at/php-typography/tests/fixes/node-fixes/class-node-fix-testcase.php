@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,16 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Tests\PHP_Typography_Testcase;
-use \PHP_Typography\Settings;
-use \PHP_Typography\Fixes\Node_Fix;
+use PHP_Typography\Tests\Testcase;
+
+use PHP_Typography\Fixes\Node_Fix;
+use PHP_Typography\RE;
+use PHP_Typography\Settings;
 
 /**
  * Abstract base class for \PHP_Typography\* unit tests.
  */
-abstract class Node_Fix_Testcase extends PHP_Typography_Testcase {
+abstract class Node_Fix_Testcase extends Testcase {
 
 	/**
 	 * Settings object.
@@ -51,7 +53,7 @@ abstract class Node_Fix_Testcase extends PHP_Typography_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
+	protected function set_up() {
 		$this->s = new Settings( true );
 	}
 
@@ -63,8 +65,7 @@ abstract class Node_Fix_Testcase extends PHP_Typography_Testcase {
 	 * @return \DOMText
 	 */
 	protected function create_textnode( $value ) {
-		// returns < > & to encoded HTML characters (&lt; &gt; and &amp; respectively).
-		return new \DOMText( htmlspecialchars( html_entity_decode( $value ), ENT_NOQUOTES, 'UTF-8', false ) );
+		return new \DOMText( html_entity_decode( $value ) );
 	}
 
 	/**
@@ -97,6 +98,6 @@ abstract class Node_Fix_Testcase extends PHP_Typography_Testcase {
 		}
 
 		$this->fix->apply( $node, $this->s, $is_title );
-		$this->assertSame( $this->clean_html( $result ), $this->clean_html( $node->data ) );
+		$this->assertSame( $this->clean_html( $result ), $this->clean_html( str_replace( [ RE::ESCAPED_HTML_OPEN, RE::ESCAPED_HTML_CLOSE ], [ '<', '>' ], $node->data ) ) );
 	}
 }

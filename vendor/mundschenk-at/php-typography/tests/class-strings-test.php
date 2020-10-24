@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,21 +32,7 @@ use PHP_Typography\Strings;
  * @coversDefaultClass \PHP_Typography\Strings
  * @usesDefaultClass \PHP_Typography\Strings
  */
-class Strings_Test extends \PHPUnit\Framework\TestCase {
-
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-	}
-
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() { // @codingStandardsIgnoreLine
-	}
+class Strings_Test extends Testcase {
 
 	/**
 	 * Reports an error identified by $message if the given function array contains a non-callable.
@@ -54,7 +40,7 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 	 * @param array  $func    An array of string functions.
 	 * @param string $message Optional. Default ''.
 	 */
-	protected function assertStringFunctions( array $func, $message = '' ) {
+	protected function assert_string_functions( array $func, $message = '' ) {
 		// Each function is a callable (except for the 'u' modifier string).
 		foreach ( $func as $name => $function ) {
 			if ( 'u' !== $name ) {
@@ -84,8 +70,8 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( array_keys( $func_ascii ), array_keys( $func_utf8 ) );
 
 		// Each function is a callable (except for the 'u' modifier string).
-		$this->assertStringFunctions( $func_ascii );
-		$this->assertStringFunctions( $func_utf8 );
+		$this->assert_string_functions( $func_ascii );
+		$this->assert_string_functions( $func_utf8 );
 	}
 
 	/**
@@ -122,7 +108,6 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 	 * Test uchr.
 	 *
 	 * @covers ::uchr
-	 * @uses ::_uchr
 	 *
 	 * @dataProvider provide_uchr_data
 	 *
@@ -137,7 +122,6 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 	 * Test uchr.
 	 *
 	 * @covers ::uchr
-	 * @uses ::_uchr
 	 *
 	 * @dataProvider provide_uchr_multi_data
 	 *
@@ -150,21 +134,6 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test _uchr.
-	 *
-	 * @covers ::_uchr
-	 *
-	 * @dataProvider provide_uchr_data
-	 *
-	 * @param  int    $code   Character code.
-	 * @param  string $result Expected result.
-	 */
-	public function test__uchr( $code, $result ) {
-		$this->assertSame( $result, Strings::_uchr( $code ) );
-	}
-
-
-	/**
 	 * Provide data for testing mb_str_split.
 	 *
 	 * @return array
@@ -175,7 +144,8 @@ class Strings_Test extends \PHPUnit\Framework\TestCase {
 			[ 'A ship', 1, [ 'A', ' ', 's', 'h', 'i', 'p' ] ],
 			[ 'Äöüß', 1, [ 'Ä', 'ö', 'ü', 'ß' ] ],
 			[ 'Äöüß', 2, [ 'Äö', 'üß' ] ],
-			[ 'Äöüß', 0, [ 'Ä', 'ö', 'ü', 'ß' ] ],
+			[ '那是杂志吗', 2, [ '那是', '杂志', '吗' ] ],
+			[ '不，那不是杂志。那是字典', 3, [ '不，那', '不是杂', '志。那', '是字典' ] ],
 		];
 	}
 
