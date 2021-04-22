@@ -1,6 +1,10 @@
 # Typographer for ProcessWire
 
-Currently in stable-beta, Typographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer for wp-Typography. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.
+Typographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer for wp-Typography. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.
+
+## Install
+
+The module may be installed via the modules directory by searching for **TextformatterTypographer**.
 
 ## Configuration
 
@@ -25,4 +29,4 @@ wire()->addHookAfter('TextformatterTypographer::customTypographerSettings', func
 
 ## Licenses
 
-The textformatter is licensed under MIT, and the libraries it depends on have their own licenses. Please review these in the [license file](LICENSE.md).
+This project is licensed under the permissive MIT license, and the libraries it depends on have their own licenses. Please review these in the [license file](LICENSE.md).
