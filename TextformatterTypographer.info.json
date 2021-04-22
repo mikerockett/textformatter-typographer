@@ -1,8 +1,8 @@
 {
     "title": "Typographer",
-    "version": "0.4.0",
+    "version": "1.0.0",
     "author": "Mike Rockett",
-    "summary": "Currently in stable-beta, Typographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.",
+    "summary": "Typographer is a ProcessWire wrapper for the awesome PHP Typography class, originally authored by KINGdesk LLC and enhanced by Peter Putzer. Like Smartypants, it supercharges text fields with enhanced typography and typesetting, such as smart quotations, hyphenation in 59 languages, ellipses, copyright-, trade-, and service-marks, math symbols, and more.",
     "requires": "ProcessWire>=2.8.0",
     "license": "MIT",
     "hreflicense": "http://mit-license.org/"
