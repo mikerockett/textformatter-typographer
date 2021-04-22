@@ -4,26 +4,22 @@ Currently in stable-beta, Typographer is a ProcessWire wrapper for the awesome P
 
 ## Configuration
 
-### Module settings
+This module is configurable. Feel free to visit the configuration page to see what can be toggled and configured.
 
-The textformatter is configurable. Feel free to visit its configuration page to see what can be toggled and configured. As the module is in alpha, there are plans to include more of the settings that are made available by PHP Typography. There are also plans to refactor a little bit, making use of a more automated approach and some proper autoloading, traits, etc. (this is a practice I’m implementing in all my modules as thay are upgraded).
-
-### Hook
-
-To modify the instance of Typographer's settings class directly, hook into the `customTypographerSettings` method.
+To modify the instance of Typographer's settings class programatically, hook into the `customTypographerSettings` method.
 
 ```php
 wire()->addHookAfter('TextformatterTypographer::customTypographerSettings', function (HookEvent $event) {
-    /** @var \PHP_Typography\Settings $settings */
-    $settings = $event->return;
+  /** @var \PHP_Typography\Settings $settings */
+  $settings = $event->return;
 
-    $lang = $event->user->language->name;
+  $lang = $event->user->language->name;
 
-    if ($lang === 'de') {
-      $settings->set_hyphenation_language('de');
-      $settings->set_smart_quotes_primary('doubleLow9Reversed');
-      $settings->set_smart_quotes_secondary('singleLow9Reversed');
-    }
+  if ($lang === 'de') {
+    $settings->set_hyphenation_language('de');
+    $settings->set_smart_quotes_primary('doubleLow9Reversed');
+    $settings->set_smart_quotes_secondary('singleLow9Reversed');
+  }
 });
 ```
 
