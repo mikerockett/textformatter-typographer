@@ -129,10 +129,10 @@ trait TypographerTrait
         $this->setExclusions();
 
         // Run hook to allow modification of the Settings instance
-        $ettingsInstance = $this->customTypographerSettings($this->settingsInstance);
+        $settingsInstance = $this->customTypographerSettings($this->settingsInstance);
 
         // Process and return the incoming text
-        return $this->typographerInstance->process($input, $ettingsInstance);
+        return $this->typographerInstance->process($input, $settingsInstance);
     }
 
     /**
