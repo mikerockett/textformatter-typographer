@@ -128,7 +128,19 @@ trait TypographerTrait
         $this->setHyphenation();
         $this->setExclusions();
 
+        // Run hook to allow modification of the Settings instance
+        $ettingsInstance = $this->customTypographerSettings($this->settingsInstance);
+
         // Process and return the incoming text
-        return $this->typographerInstance->process($input, $this->settingsInstance);
+        return $this->typographerInstance->process($input, $ettingsInstance);
+    }
+
+    /**
+     * Hook allow modifcation of the Typographer Settings instance
+     * @return void
+     */
+    public function ___customTypographerSettings($settingsInstance)
+    {
+        return $settingsInstance;
     }
 }
