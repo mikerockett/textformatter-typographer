@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 
 namespace PHP_Typography\Settings;
 
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * A factory class for different dash styles.
@@ -46,7 +46,12 @@ abstract class Dash_Style {
 	/**
 	 * "International" dash style (using en dashes).
 	 */
-	const INTERNATIONAL  = 'international';
+	const INTERNATIONAL = 'international';
+
+	/**
+	 * "International" dash style (using en dashes), Duden-style (without hair spaces).
+	 */
+	const INTERNATIONAL_NO_HAIR_SPACES = 'internationalNoHairSpaces';
 
 	/**
 	 * Available dash styles.
@@ -54,17 +59,23 @@ abstract class Dash_Style {
 	 * @var array
 	 */
 	private static $styles = [
-		self::TRADITIONAL_US => [
+		self::TRADITIONAL_US               => [
 			self::_PARENTHETICAL       => U::EM_DASH,
 			self::_PARENTHETICAL_SPACE => U::THIN_SPACE,
 			self::_INTERVAL            => U::EN_DASH,
 			self::_INTERVAL_SPACE      => U::THIN_SPACE,
 		],
-		self::INTERNATIONAL  => [
+		self::INTERNATIONAL                => [
 			self::_PARENTHETICAL       => U::EN_DASH,
 			self::_PARENTHETICAL_SPACE => ' ',
 			self::_INTERVAL            => U::EN_DASH,
 			self::_INTERVAL_SPACE      => U::HAIR_SPACE,
+		],
+		self::INTERNATIONAL_NO_HAIR_SPACES => [
+			self::_PARENTHETICAL       => U::EN_DASH,
+			self::_PARENTHETICAL_SPACE => ' ',
+			self::_INTERVAL            => U::EN_DASH,
+			self::_INTERVAL_SPACE      => '',
 		],
 	];
 
@@ -107,12 +118,14 @@ abstract class Dash_Style {
 	/**
 	 * Creates a new Dashes object in the given style.
 	 *
+	 * @since 6.5.0 The $settings parameter has been deprecated.
+	 *
 	 * @param string   $style    The dash style.
 	 * @param Settings $settings The current settings.
 	 *
 	 * @return Dashes|null Returns null in case of an invalid $style parameter.
 	 */
-	public static function get_styled_dashes( $style, Settings $settings ) {
+	public static function get_styled_dashes( $style, /** Currently unused. @scrutinizer ignore-unused */ Settings $settings ) {
 		if ( isset( self::$styles[ $style ] ) ) {
 			return new Simple_Dashes(
 				self::$styles[ $style ][ self::_PARENTHETICAL ],

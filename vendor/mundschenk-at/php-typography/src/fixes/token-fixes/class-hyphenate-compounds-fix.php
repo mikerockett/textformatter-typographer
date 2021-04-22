@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@
 
 namespace PHP_Typography\Fixes\Token_Fixes;
 
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Hyphenator\Cache;
-use \PHP_Typography\Settings;
-use \PHP_Typography\Text_Parser;
-use \PHP_Typography\Text_Parser\Token;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Hyphenator\Cache;
+use PHP_Typography\Settings;
+use PHP_Typography\Text_Parser;
+use PHP_Typography\Text_Parser\Token;
 
 /**
  * Hyphenates hyphenated compound words (if enabled).
@@ -64,20 +64,25 @@ class Hyphenate_Compounds_Fix extends Hyphenate_Fix {
 	 * @return Token[] An array of tokens.
 	 */
 	public function apply( array $tokens, Settings $settings, $is_title = false, \DOMText $textnode = null ) {
-		if ( empty( $settings['hyphenateCompounds'] ) ) {
+		if ( empty( $settings[ Settings::HYPHENATE_COMPOUNDS ] ) ) {
 			return $tokens; // abort.
 		}
 
 		// Hyphenate compound words.
 		foreach ( $tokens as $key => $word_token ) {
 			$component_words = [];
-			foreach ( preg_split( '/(-)/', $word_token->value, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE ) as $word_part ) {
+			foreach ( \preg_split( '/(-)/', $word_token->value, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE ) as $word_part ) {
 				$component_words[] = new Text_Parser\Token( $word_part, Text_Parser\Token::WORD );
 			}
 
-			$tokens[ $key ] = $word_token->with_value( array_reduce( parent::apply( $component_words, $settings, $is_title, $textnode ), function( $carry, $item ) {
-				return $carry . $item->value;
-			} ) );
+			$tokens[ $key ] = $word_token->with_value(
+				\array_reduce(
+					parent::apply( $component_words, $settings, $is_title, $textnode ),
+					function( $carry, $item ) {
+						return $carry . $item->value;
+					}
+				)
+			);
 		}
 
 		return $tokens;

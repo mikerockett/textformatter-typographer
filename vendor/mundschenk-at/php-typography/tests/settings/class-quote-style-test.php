@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 
 namespace PHP_Typography\Tests\Settings;
 
-use \PHP_Typography\Tests\PHP_Typography_Testcase;
+use PHP_Typography\Tests\Testcase;
 
-use \PHP_Typography\Settings\Quotes;
-use \PHP_Typography\Settings\Quote_Style;
-use \PHP_Typography\U;
+use PHP_Typography\Settings\Quotes;
+use PHP_Typography\Settings\Quote_Style;
+use PHP_Typography\U;
 
 /**
  * Quote_Style unit test.
@@ -38,7 +38,7 @@ use \PHP_Typography\U;
  *
  * @uses PHP_Typography\Settings\Simple_Quotes
  */
-class Quote_Style_Test extends PHP_Typography_Testcase {
+class Quote_Style_Test extends Testcase {
 
 
 	/**

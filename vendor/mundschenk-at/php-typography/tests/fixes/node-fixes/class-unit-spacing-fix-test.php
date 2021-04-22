@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Unit_Spacing_Fix unit test.
@@ -36,7 +36,6 @@ use \PHP_Typography\Settings;
  * @uses ::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Simple_Regex_Replacement_Fix::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -51,8 +50,8 @@ class Unit_Spacing_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Node_Fixes\Unit_Spacing_Fix();
 	}
@@ -68,6 +67,16 @@ class Unit_Spacing_Fix_Test extends Node_Fix_Testcase {
 			[ '3 km/h', '3&#8239;km/h' ],
 			[ '5 sg 44 kg', '5 sg 44&#8239;kg' ],
 			[ '100 &deg;C', '100&#8239;&deg;C' ],
+			[ '10 &euro;', '10&#8239;&euro;' ],
+			[ '10 €', '10&#8239;&euro;' ],
+			[ '1 ¢', '1&#8239;&cent;' ],
+			[ '1 $', '1&#8239;$' ],
+			[ '5 nanoamperes', '5&#8239;nanoamperes' ],
+			[ '1 Ω', '1&#8239;&Omega;' ],
+			[ '1 &Omega;', '1&#8239;&Omega;' ],
+			[ '10 m2', '10&#8239;m2' ],
+			[ '10 m²', '10&#8239;m²' ],
+			[ '5 m³', '5&#8239;m³' ],
 		];
 	}
 

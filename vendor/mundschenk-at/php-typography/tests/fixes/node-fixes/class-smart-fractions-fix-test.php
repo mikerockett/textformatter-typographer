@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,10 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\RE;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * Smart_Fractions_Fix unit test.
@@ -36,7 +37,6 @@ use \PHP_Typography\U;
  *
  * @uses ::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -48,23 +48,16 @@ use \PHP_Typography\U;
 class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 
 	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
-	}
-
-	/**
 	 * Tests the constructor.
 	 *
 	 * @covers ::__construct
 	 *
 	 * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
+	 * @uses PHP_Typography\RE::escape_tags
 	 */
 	public function test_array_constructor() {
 		$this->fix = new Node_Fixes\Smart_Fractions_Fix( 'foo', 'bar' );
-		$this->assertAttributeEquals( '<sup class="foo">$1</sup>' . U::FRACTION_SLASH . '<sub class="bar">$2</sub>$3', 'replacement',   $this->fix, 'The replacement should contain the classes "foo" and "bar".' );
+		$this->assert_attribute_same( RE::escape_tags( '<sup class="foo">$1</sup>' . U::FRACTION_SLASH . '<sub class="bar">$2</sub>$3' ), 'replacement',   $this->fix, 'The replacement should contain the classes "foo" and "bar".' );
 	}
 
 	/**
@@ -98,6 +91,54 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 				'num',
 				'denom',
 			],
+			[
+				'1/4.',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>.',
+				'num',
+				'denom',
+			],
+			[
+				'1/4,',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>,',
+				'num',
+				'denom',
+			],
+			[
+				'1/4;',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>;',
+				'num',
+				'denom',
+			],
+			[
+				'1/4:',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>:',
+				'num',
+				'denom',
+			],
+			[
+				'1/4?',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>?',
+				'num',
+				'denom',
+			],
+			[
+				'1/4!',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">4</sub>!',
+				'num',
+				'denom',
+			],
+			[
+				'1/2018',
+				'1/2018',
+				'',
+				'',
+			],
+			[
+				'99/2018',
+				'<sup>99</sup>&frasl;<sub>2018</sub>',
+				'',
+				'',
+			],
 		];
 	}
 
@@ -129,6 +170,12 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 			[
 				'1/2 4/2015 1999/2000 999/1000',
 				'<sup class="num">1</sup>&frasl;<sub class="denom">2</sub>&#8239;4/2015 1999/2000&#8239;<sup class="num">999</sup>&frasl;<sub class="denom">1000</sub>',
+				'num',
+				'denom',
+			],
+			[
+				'1/1, 10/10, 9/9, 50/50',
+				'<sup class="num">1</sup>&frasl;<sub class="denom">1</sub>, 10/10, 9/9, 50/50',
 				'num',
 				'denom',
 			],
@@ -174,6 +221,8 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 	 *
 	 * @covers ::apply
 	 *
+	 * @uses PHP_Typography\RE::escape_tags
+	 *
 	 * @dataProvider provide_smart_fractions_data
 	 *
 	 * @param string $input       HTML input.
@@ -195,6 +244,8 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 	 * Test apply.
 	 *
 	 * @covers ::apply
+	 *
+	 * @uses PHP_Typography\RE::escape_tags
 	 *
 	 * @dataProvider provide_smart_fractions_with_spacing_data
 	 *
@@ -218,6 +269,8 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 	 *
 	 * @covers ::apply
 	 *
+	 * @uses PHP_Typography\RE::escape_tags
+	 *
 	 * @dataProvider provide_smart_fractions_only_spacing_data
 	 *
 	 * @param string $input       HTML input.
@@ -240,6 +293,8 @@ class Smart_Fractions_Fix_Test extends Node_Fix_Testcase {
 	 * Test apply.
 	 *
 	 * @covers ::apply
+	 *
+	 * @uses PHP_Typography\RE::escape_tags
 	 *
 	 * @dataProvider provide_smart_fractions_data
 	 *

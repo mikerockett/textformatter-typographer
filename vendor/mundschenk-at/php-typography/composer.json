@@ -2,7 +2,7 @@
     "name": "mundschenk-at/php-typography",
     "description": "A PHP library for improving your web typography",
     "type": "library",
-    "license": "GPL 2.0+",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Peter Putzer",
@@ -22,17 +22,19 @@
         "php": ">=5.6.0",
         "ext-pcre": "*",
         "ext-mbstring": "*",
-        "masterminds/html5": "2.3.0"
+        "masterminds/html5": "^2.5.0"
     },
     "require-dev": {
         "ext-curl": "*",
-        "phpunit/phpunit": "5.*||6.*",
-        "squizlabs/php_codesniffer": "^3.1.0",
-        "wp-coding-standards/wpcs": "^0.13.1",
-        "wimg/php-compatibility": "^8.0.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
-        "phpstan/phpstan": "^0.8.0",
-        "phpbench/phpbench": "^1.0@dev"
+        "phpunit/phpunit": "5.*||6.*||7.*|8.*|9.*",
+        "brain/monkey": "^2.2.0",
+        "squizlabs/php_codesniffer": "^3",
+        "wp-coding-standards/wpcs": "^2.0",
+        "phpcompatibility/php-compatibility": "^9.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.6",
+        "phpstan/phpstan": "^0.12",
+        "phpbench/phpbench": "^0.17||^1.0@dev",
+        "mundschenk-at/phpunit-cross-version": "dev-master"
     },
 
     "autoload": {

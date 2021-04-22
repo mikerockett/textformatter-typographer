@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -100,10 +100,10 @@ final class Token {
 				throw new \UnexpectedValueException( "Invalid type $type." );
 		}
 
-		if ( ! isset( $value ) || ! is_string( $value ) ) {
+		if ( ! \is_string( $value ) ) {
 			throw new \UnexpectedValueException( 'Value has to be a string.' );
 		} else {
-			$this->value   = $value;
+			$this->value = $value;
 		}
 
 		$this->mutable = false;
@@ -117,7 +117,7 @@ final class Token {
 	 * @return mixed
 	 */
 	public function __get( $property ) {
-		if ( property_exists( $this, $property ) ) {
+		if ( \property_exists( $this, $property ) ) {
 			return $this->$property;
 		}
 	}
@@ -160,7 +160,7 @@ final class Token {
 			return $this;
 		}
 
-		$cloned_token = clone $this;
+		$cloned_token        = clone $this;
 		$cloned_token->value = $value;
 
 		return $cloned_token;

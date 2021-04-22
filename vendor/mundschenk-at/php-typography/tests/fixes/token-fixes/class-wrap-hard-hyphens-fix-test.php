@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 
 namespace PHP_Typography\Tests\Fixes\Token_Fixes;
 
-use \PHP_Typography\Fixes\Token_Fix;
-use \PHP_Typography\Fixes\Token_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Token_Fix;
+use PHP_Typography\Fixes\Token_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Wrap_Hard_Hyphens_Fix unit test.
@@ -51,8 +51,8 @@ class Wrap_Hard_Hyphens_Fix_Test extends Token_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Token_Fixes\Wrap_Hard_Hyphens_Fix();
 	}
@@ -65,8 +65,8 @@ class Wrap_Hard_Hyphens_Fix_Test extends Token_Fix_Testcase {
 	public function test_constructor() {
 		$fix = new Token_Fixes\Wrap_Hard_Hyphens_Fix( true );
 
-		$this->assertAttributeEquals( Token_Fix::MIXED_WORDS, 'target', $fix, 'The fixer should be targetting MIXED_WORDS tokens.' );
-		$this->assertAttributeEquals( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
+		$this->assert_attribute_same( Token_Fix::MIXED_WORDS, 'target', $fix, 'The fixer should be targetting MIXED_WORDS tokens.' );
+		$this->assert_attribute_same( true, 'feed_compatible', $fix, 'The fixer should not be feed_compatible.' );
 	}
 
 	/**
@@ -98,27 +98,6 @@ class Wrap_Hard_Hyphens_Fix_Test extends Token_Fix_Testcase {
 	public function test_apply( $input, $result ) {
 		$this->s->set_wrap_hard_hyphens( true );
 
-		$this->assertFixResultSame( $input, $result );
-	}
-
-	/**
-	 * Test apply.
-	 *
-	 * @covers ::apply
-	 *
-	 * @uses PHP_Typography\Text_Parser
-	 * @uses PHP_Typography\Text_Parser\Token
-	 *
-	 * @dataProvider provide_wrap_hard_hyphens_data
-	 *
-	 * @param string $input  HTML input.
-	 * @param string $result Expected result.
-	 */
-	public function test_apply_with_smart_dashes( $input, $result ) {
-		$this->s->set_wrap_hard_hyphens( true );
-		$this->s->set_smart_dashes( true );
-
-		// Need to add new test data for the smart dashes/hard hyphens combo.
 		$this->assertFixResultSame( $input, $result );
 	}
 

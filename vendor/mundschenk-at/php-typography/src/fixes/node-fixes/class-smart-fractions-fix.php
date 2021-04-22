@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2017 Peter Putzer.
+ *  Copyright 2017-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@
 
 namespace PHP_Typography\Fixes\Node_Fixes;
 
-use \PHP_Typography\DOM;
-use \PHP_Typography\RE;
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\DOM;
+use PHP_Typography\RE;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * Applies smart fractions (if enabled).
@@ -44,6 +44,7 @@ use \PHP_Typography\U;
 class Smart_Fractions_Fix extends Abstract_Node_Fix {
 
 	const SPACING = '/\b(\d+)\s(\d+\s?\/\s?\d+)\b/';
+
 	const FRACTION_MATCHING = '/
 		# lookbehind assertion: makes sure we are not messing up a url
 		(?<=\A|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . ')
@@ -53,7 +54,19 @@ class Smart_Fractions_Fix extends Abstract_Node_Fix {
 		# strip out any zero-width spaces inserted by wrap_hard_hyphens
 		(?:\s?\/\s?' . U::ZERO_WIDTH_SPACE . '?)
 
-		(\d+)
+		(
+			# lookahead assertion: do not make fractions from x:x if x > 1
+			(?:
+				# ignore x:x where x > 1
+				(?!\1(?:[^0-9]|\Z)) |
+
+				# but allow 1:1
+				(?=\1)(?=1(?:[^0-9]|\Z))
+			)
+
+			# Any numbers, except those above
+			\d+
+		)
 		(
 			# handle fractions followed by prime symbols
 			(?:' . U::SINGLE_PRIME . '|' . U::DOUBLE_PRIME . ')?
@@ -62,26 +75,21 @@ class Smart_Fractions_Fix extends Abstract_Node_Fix {
 			(?:\<sup\>(?:st|nd|rd|th)<\/sup\>)?
 
 			# makes sure we are not messing up a url
-			(?:\Z|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . '|\.|\!|\?|\)|\;|\:|\'|")
+			(?:\Z|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . '|\.|,|\!|\?|\)|\;|\:|\'|")
 		)
-		/xu';
+		/Sxu';
+
 	const ESCAPE_DATE_MM_YYYY = '/
-		# lookbehind assertion: makes sure we are not messing up a url
-		(?<=\A|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . ')
+			# capture valid one- or two-digit months
+			( \b (?: 0?[1-9] | 1[0-2] ) )
 
-			(\d\d?)
+			# capture any zero-width spaces inserted by wrap_hard_hyphens
+			(\s?\/\s?' . U::ZERO_WIDTH_SPACE . '?)
 
-		# capture any zero-width spaces inserted by wrap_hard_hyphens
-		(\s?\/\s?' . U::ZERO_WIDTH_SPACE . '?)
-			(
-				# handle 4-decimal years in the 20th and 21st centuries
-				(?:19\d\d)|(?:20\d\d)
-			)
-			(
-				# makes sure we are not messing up a url
-				(?:\Z|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . '|\.|\!|\?|\)|\;|\:|\'|")
-			)
-		/xu';
+			# handle 4-decimal years
+			( [12][0-9]{3}\b )
+
+		/Sxu';
 
 	/**
 	 * Regular expression matching consecutive years in the format YYYY/YYYY+1.
@@ -112,21 +120,12 @@ class Smart_Fractions_Fix extends Abstract_Node_Fix {
 		for ( $year = 1900; $year < 2100; ++$year ) {
 			$year_regex[] = "(?: ( $year ) (\s?\/\s?" . U::ZERO_WIDTH_SPACE . '?) ( ' . ( $year + 1 ) . ' ) )';
 		}
-		$this->escape_consecutive_years = '/
-			# lookbehind assertion: makes sure we are not messing up a url
-			(?<=\A|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . ')
-
-			(?| ' . implode( '|', $year_regex ) . ' )
-			(
-				# makes sure we are not messing up a url
-				(?:\Z|\s|' . U::NO_BREAK_SPACE . '|' . U::NO_BREAK_NARROW_SPACE . '|\.|\!|\?|\)|\;|\:|\'|\")
-			)
-		/xu';
+		$this->escape_consecutive_years = '/\b (?| ' . implode( '|', $year_regex ) . ' ) \b/Sxu';
 
 		// Replace fractions.
 		$numerator_css     = empty( $css_numerator ) ? '' : ' class="' . $css_numerator . '"';
 		$denominator_css   = empty( $css_denominator ) ? '' : ' class="' . $css_denominator . '"';
-		$this->replacement = "<sup{$numerator_css}>\$1</sup>" . U::FRACTION_SLASH . "<sub{$denominator_css}>\$2</sub>\$3";
+		$this->replacement = RE::escape_tags( "<sup{$numerator_css}>\$1</sup>" . U::FRACTION_SLASH . "<sub{$denominator_css}>\$2</sub>\$3" );
 	}
 
 	/**
@@ -137,26 +136,43 @@ class Smart_Fractions_Fix extends Abstract_Node_Fix {
 	 * @param bool     $is_title Optional. Default false.
 	 */
 	public function apply( \DOMText $textnode, Settings $settings, $is_title = false ) {
-		if ( empty( $settings['smartFractions'] ) && empty( $settings['fractionSpacing'] ) ) {
+		if ( empty( $settings[ Settings::SMART_FRACTIONS ] ) && empty( $settings[ Settings::FRACTION_SPACING ] ) ) {
 			return;
 		}
 
-		if ( ! empty( $settings['fractionSpacing'] ) && ! empty( $settings['smartFractions'] ) ) {
-			$textnode->data = preg_replace( self::SPACING, '$1' . $settings->no_break_narrow_space() . '$2', $textnode->data );
-		} elseif ( ! empty( $settings['fractionSpacing'] ) && empty( $settings['smartFractions'] ) ) {
-			$textnode->data = preg_replace( self::SPACING, '$1' . U::NO_BREAK_SPACE . '$2', $textnode->data );
+		// Cache textnode content.
+		$node_data = $textnode->data;
+
+		if ( ! empty( $settings[ Settings::FRACTION_SPACING ] ) && ! empty( $settings[ Settings::SMART_FRACTIONS ] ) ) {
+			$node_data = \preg_replace( self::SPACING, '$1' . U::NO_BREAK_NARROW_SPACE . '$2', $node_data );
+		} elseif ( ! empty( $settings[ Settings::FRACTION_SPACING ] ) && empty( $settings[ Settings::SMART_FRACTIONS ] ) ) {
+			$node_data = \preg_replace( self::SPACING, '$1' . U::NO_BREAK_SPACE . '$2', $node_data );
 		}
 
-		if ( ! empty( $settings['smartFractions'] ) ) {
-			// Escape sequences we don't want fractionified.
-			$textnode->data = preg_replace( $this->escape_consecutive_years, '$1' . RE::ESCAPE_MARKER . '$2$3$4', $textnode->data );
-			$textnode->data = preg_replace( self::ESCAPE_DATE_MM_YYYY,       '$1' . RE::ESCAPE_MARKER . '$2$3$4', $textnode->data );
+		if ( ! empty( $settings[ Settings::SMART_FRACTIONS ] ) ) {
+			$node_data = \preg_replace(
+				[
+					// Escape sequences we don't want fractionified.
+					$this->escape_consecutive_years,
+					self::ESCAPE_DATE_MM_YYYY,
 
-			// Replace fractions.
-			$textnode->data = preg_replace( self::FRACTION_MATCHING, $this->replacement, $textnode->data );
+					// Replace fractions.
+					self::FRACTION_MATCHING,
+				],
+				[
+					'$1' . RE::ESCAPE_MARKER . '$2$3',
+					'$1' . RE::ESCAPE_MARKER . '$2$3',
+
+					$this->replacement,
+				],
+				$node_data
+			);
 
 			// Unescape escaped sequences.
-			$textnode->data = str_replace( RE::ESCAPE_MARKER, '', $textnode->data );
+			$node_data = \str_replace( RE::ESCAPE_MARKER, '', $node_data );
 		}
+
+		// Restore textnode content.
+		$textnode->data = $node_data;
 	}
 }

@@ -7,21 +7,17 @@
     * See https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/blob/develop/WordPress-Core/ruleset.xml
 	</description>
 
+	<config name="testVersion" value="5.6-"/>
+
 	<!-- Include the WordPress ruleset, with exclusions. -->
 	<rule ref="WordPress">
-		<exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact" />
-		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect" />
-		<exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
-		<exclude name="WordPress.Arrays.CommaAfterArrayItem.SpaceAfterComma" />
+		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 		<exclude name="WordPress.WP.AlternativeFunctions" />
-		<exclude name="WordPress.XSS.EscapeOutput.OutputNotEscaped" />
+		<exclude name="WordPress.Arrays.CommaAfterArrayItem.SpaceAfterComma" />
+		<exclude name="Generic.Functions.FunctionCallArgumentSpacing" />
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax" />
 	</rule>
-	<rule ref="WordPress-VIP">
-		<exclude name="WordPress.VIP.RestrictedFunctions.file_get_contents_file_get_contents" />
-		<exclude name="WordPress.VIP.FileSystemWritesDisallow" />
-	</rule>
-	<rule ref="Squiz.Commenting.LongConditionClosingComment">
-		<exclude name="Squiz.Commenting.LongConditionClosingComment" />
+	<rule ref="WordPress-Extra">
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.ValidVariableName">
@@ -43,8 +39,15 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment">
+		<properties>
+			<property name="exact" value="false" />
+			<property name="maxColumn" value="70" />
+		</properties>
+	</rule>
+
 	<!-- Include sniffs for PHP cross-version compatibility. -->
 	<rule ref="PHPCompatibility">
-		<config name="testVersion" value="5.6-7.1"/>
+		<exclude-pattern>*/tests/*\.php</exclude-pattern>
 	</rule>
 </ruleset>

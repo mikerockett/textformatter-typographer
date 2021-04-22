@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2014-2017 Peter Putzer.
+ *  Copyright 2014-2020 Peter Putzer.
  *  Copyright 2009-2011 KINGdesk, LLC.
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,25 +36,31 @@ abstract class Strings {
 	/**
 	 * Utility patterns for splitting string parameter lists into arrays.
 	 *
+	 * @internal
+	 *
 	 * @var string
 	 */
-	const _RE_PARAMETER_SPLITTING = '/[\s,]+/S';
+	const RE_PARAMETER_SPLITTING = '/[\s,]+/S';
 
 	/**
 	 * An array of encodings in detection order.
 	 *
 	 * ASCII has to be first to have a chance of detection.
 	 *
+	 * @internal
+	 *
 	 * @var array
 	 */
-	const _ENCODINGS = [ 'ASCII', 'UTF-8' ];
+	const ENCODINGS = [ 'ASCII', 'UTF-8' ];
 
 	/**
 	 * A hash map for string functions according to encoding.
 	 *
+	 * @internal
+	 *
 	 * @var array $encoding => [ 'strlen' => $function_name, ... ].
 	 */
-	const _STRING_FUNCTIONS = [
+	const STRING_FUNCTIONS = [
 		'UTF-8' => [
 			'strlen'     => 'mb_strlen',
 			'str_split'  => [ __CLASS__, 'mb_str_split' ],
@@ -90,33 +96,29 @@ abstract class Strings {
 	 * }
 	 */
 	public static function functions( $str ) {
-		return self::_STRING_FUNCTIONS[ mb_detect_encoding( $str, self::_ENCODINGS, true ) ];
+		return self::STRING_FUNCTIONS[ \mb_detect_encoding( $str, self::ENCODINGS, true ) ];
 	}
 
 	/**
-	 * Multibyte-safe str_split function.
+	 * Multibyte-safe str_split function. Unlike regular str_split, behavior for
+	 * `$split_length` < 1 is undefined and may or may not result in an error
+	 * being raised.
 	 *
-	 * Unlike str_split, a $split_length less than 1 is ignored (and thus
-	 * equivalent to the default).
+	 * @param string $string       The input string.
+	 * @param int    $split_length Optional. Maximum length of the chunk. Default 1.
 	 *
-	 * @param string $str           Required.
-	 * @param int    $split_length  Optional. Default 1.
-	 *
-	 * @return array                An array of $split_length character chunks.
+	 * @return string[]            An array of $split_length character chunks.
 	 */
-	public static function mb_str_split( $str, $split_length = 1 ) {
-		$result = preg_split( '//u', $str , -1, PREG_SPLIT_NO_EMPTY );
-
-		if ( $split_length > 1 ) {
-			$splits = [];
-			foreach ( array_chunk( $result, $split_length ) as $chunk ) {
-				$splits[] = join( '', $chunk );
-			}
-
-			$result = $splits;
+	public static function mb_str_split( $string, $split_length = 1 ) {
+		// Checking here is not optimal, the check should be made on instantiation
+		// when the class is refactored.
+		if ( \function_exists( 'mb_str_split' ) ) {
+			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.mb_str_splitFound
+			return (array) \mb_str_split( $string, $split_length, 'UTF-8' );
 		}
 
-		return $result;
+		// We can safely cast to an array here, as long as $string convertible to a string.
+		return (array) \preg_split( "/(.{{$split_length}})/us", $string , -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE );
 	}
 
 	/**
@@ -129,29 +131,18 @@ abstract class Strings {
 	public static function uchr( $codes ) {
 
 		// Single character code.
-		if ( is_scalar( $codes ) ) {
-			$codes = func_get_args();
+		if ( \is_scalar( $codes ) ) {
+			$codes = \func_get_args(); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 		}
 
 		// Deal with an array of character codes.
-		$str = '';
+		$json = '"';
 		foreach ( $codes as $code ) {
-			$str .= self::_uchr( (int) $code );
+			$json .= \sprintf( '\u%04x', $code );
 		}
+		$json .= '"';
 
-		return $str;
-	}
-	/**
-	 * Converts decimal value to unicode character.
-	 *
-	 * For internal use only.
-	 *
-	 * @param int $code Decimal value coresponding to unicode character.
-	 *
-	 * @return string Unicode character.
-	 */
-	public static function _uchr( $code ) {
-		return html_entity_decode( '&#' . $code . ';', ENT_NOQUOTES, 'UTF-8' );
+		return \json_decode( $json );
 	}
 
 	/**
@@ -162,8 +153,9 @@ abstract class Strings {
 	 * @return array
 	 */
 	public static function maybe_split_parameters( $params ) {
-		if ( ! is_array( $params ) ) {
-			$params = preg_split( self::_RE_PARAMETER_SPLITTING, $params, -1, PREG_SPLIT_NO_EMPTY );
+		if ( ! \is_array( $params ) ) {
+			// We can safely cast to an array here, as long as $params convertible to a string.
+			$params = (array) \preg_split( self::RE_PARAMETER_SPLITTING, $params, -1, PREG_SPLIT_NO_EMPTY );
 		}
 
 		return $params;

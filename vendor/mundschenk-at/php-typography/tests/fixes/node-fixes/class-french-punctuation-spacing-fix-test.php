@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes\French_Punctuation_Spacing_Fix;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes\French_Punctuation_Spacing_Fix;
+use PHP_Typography\Settings;
 
 /**
  * French_Punctuation_Spacing_Fix unit test.
@@ -34,7 +34,6 @@ use \PHP_Typography\Settings;
  * @usesDefaultClass \PHP_Typography\Fixes\Node_Fixes\French_Punctuation_Spacing_Fix
  *
  * @uses ::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -49,8 +48,8 @@ class French_Punctuation_Spacing_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new French_Punctuation_Spacing_Fix();
 	}
@@ -70,10 +69,15 @@ class French_Punctuation_Spacing_Fix_Test extends Node_Fix_Testcase {
 			[ 'Jean a dit: Foo', 'Jean a dit&nbsp;: Foo' ],
 			[ 'http://example.org', 'http://example.org' ],
 			[ 'foo &Ouml; & ; bar', 'foo &Ouml; &amp; ; bar' ],
+			[ 'foo; <bar>', 'foo&#8239;; <bar>' ],
 			[ '5 > 3', '5 > 3' ],
 			[ 'Les « courants de bord ouest » du Pacifique ? Eh bien : ils sont "fabuleux".', 'Les &laquo;&#8239;courants de bord ouest&#8239;&raquo; du Pacifique&#8239;? Eh bien&nbsp;: ils sont "fabuleux".' ],
 			[ '« Hello, this is a sentence. »', '&laquo;&#8239;Hello, this is a sentence.&#8239;&raquo;' ],
 			[ 'À «programmer»?', '&Agrave; &laquo;&#8239;programmer&#8239;&raquo;&#8239;?' ],
+			[ '«Pourquoi», c’est une bonne question', '«&#8239;Pourquoi&#8239;», c’est une bonne question' ],
+			[ '(sans franchir la case «carte de crédit»)', '(sans franchir la case &laquo;&#8239;carte de cr&eacute;dit&#8239;&raquo;)' ],
+			[ '(«sans» franchir la case carte de crédit)', '(&laquo;&#8239;sans&#8239;&raquo; franchir la case carte de cr&eacute;dit)' ],
+			[ '[«sans» franchir la case «carte de crédit»]', '[&laquo;&#8239;sans&#8239;&raquo; franchir la case &laquo;&#8239;carte de cr&eacute;dit&#8239;&raquo;]' ],
 		];
 	}
 

@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2016-2017 Peter Putzer.
+ *  Copyright 2016-2020 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,14 @@
 
 namespace PHP_Typography\Tests;
 
-use \PHP_Typography\Strings;
-use \PHP_Typography\U;
-use \PHP_Typography\Settings\Dashes;
-use \PHP_Typography\Settings\Quotes;
+use PHP_Typography\Settings;
+use PHP_Typography\Strings;
+use PHP_Typography\U;
+
+use PHP_Typography\Settings\Dashes;
+use PHP_Typography\Settings\Quotes;
+
+use Mockery as m;
 
 /**
  * Unit test for Settings class.
@@ -38,10 +42,12 @@ use \PHP_Typography\Settings\Quotes;
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Simple_Dashes
  * @uses PHP_Typography\Settings\Simple_Quotes
- * @uses PHP_Typography\Strings::_uchr
+ * @uses PHP_Typography\Settings\Dash_Style::get_styled_dashes
+ * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
+ * @uses PHP_Typography\Strings::uchr
  * @uses PHP_Typography\DOM::inappropriate_tags
  */
-class Settings_Test extends PHP_Typography_Testcase {
+class Settings_Test extends Testcase {
 	/**
 	 * Settings fixture.
 	 *
@@ -53,15 +59,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() {
-		$this->settings = new \PHP_Typography\Settings( false );
-	}
+	protected function set_up() {
+		parent::set_up();
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() {
+		$this->settings = new \PHP_Typography\Settings( false );
 	}
 
 	/**
@@ -69,44 +70,43 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 *
 	 * @covers ::set_defaults
 	 *
+	 * @uses ::array_map_assoc
 	 * @uses PHP_Typography\Settings\Dash_Style::get_styled_dashes
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
 	 * @uses PHP_Typography\Strings::maybe_split_parameters
-	 * @uses PHP_Typography\Arrays::array_map_assoc
 	 * @uses PHP_Typography\DOM::inappropriate_tags
 	 */
 	public function test_set_defaults() {
 		$second_settings = new \PHP_Typography\Settings( false );
-		$this->assertAttributeEmpty( 'data', $second_settings );
+		$this->assert_attribute_empty( 'data', $second_settings );
 		$second_settings->set_defaults();
-		$this->assertAttributeNotEmpty( 'data', $second_settings );
+		$this->assert_attribute_not_empty( 'data', $second_settings );
 	}
 
 	/**
 	 * Tests initialization.
 	 *
-	 * @covers ::init
 	 * @covers ::__construct
 	 *
 	 * @uses ::set_defaults
+	 * @uses ::array_map_assoc
 	 * @uses PHP_Typography\Settings\Dash_Style::get_styled_dashes
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
 	 * @uses PHP_Typography\Strings::maybe_split_parameters
-	 * @uses PHP_Typography\Arrays::array_map_assoc
 	 * @uses PHP_Typography\DOM::inappropriate_tags
 	 */
 	public function test_initialization() {
 		$s = $this->settings;
 
 		// No defaults.
-		$this->assertAttributeEmpty( 'data', $s );
+		$this->assert_attribute_empty( 'data', $s );
 
 		// After set_defaults().
 		$s->set_defaults();
-		$this->assertAttributeNotEmpty( 'data', $s );
+		$this->assert_attribute_not_empty( 'data', $s );
 
 		$second_settings = new \PHP_Typography\Settings( true );
-		$this->assertAttributeNotEmpty( 'data', $second_settings );
+		$this->assert_attribute_not_empty( 'data', $second_settings );
 	}
 
 
@@ -179,9 +179,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	public function test_offsetSet() {
 		$s = $this->settings;
 
+		// A key has to be used.
 		$this->assertFalse( isset( $s[0] ) );
 		$s[] = 666;
-		$this->assertEquals( 666, $s[0] );
+		$this->assertFalse( isset( $s[0] ) );
 
 		$this->assertFalse( isset( $s['new_key'] ) );
 		$s['new_key'] = 42;
@@ -242,9 +243,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * Tests primary_quote_style.
 	 *
 	 * @covers ::primary_quote_style
+	 *
+	 * @uses ::set_smart_quotes_primary
 	 */
 	public function test_primary_quote_style() {
 		$s = $this->settings;
+		$s->set_smart_quotes_primary();
 
 		$this->assertInstanceOf( Quotes::class, $s->primary_quote_style(), 'Primary quote style is not an instance of Quotes.' );
 	}
@@ -253,9 +257,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * Tests secondary_quote_style.
 	 *
 	 * @covers ::secondary_quote_style
+	 *
+	 * @uses ::set_smart_quotes_secondary
 	 */
 	public function test_secondary_quote_style() {
 		$s = $this->settings;
+		$s->set_smart_quotes_secondary();
 
 		$this->assertInstanceOf( Quotes::class, $s->secondary_quote_style(), 'Secondary quote style is not an instance of Quotes.' );
 	}
@@ -264,9 +271,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * Tests dash_style.
 	 *
 	 * @covers ::dash_style
+	 *
+	 * @uses ::set_smart_dashes_style
 	 */
 	public function test_dash_style() {
 		$s = $this->settings;
+		$s->set_smart_dashes_style();
 
 		$this->assertInstanceOf( Dashes::class, $s->dash_style(), 'Dash style is not an instance of Dashes.' );
 	}
@@ -279,7 +289,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 	public function test_custom_units() {
 		$s = $this->settings;
 
-		$this->assertInternalType( 'string', $s->custom_units(), 'The result of custom_units() is not a string.' );
+		$this->assert_is_string( $s->custom_units(), 'The result of custom_units() is not a string.' );
 	}
 
 
@@ -292,10 +302,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 		$s = $this->settings;
 
 		$s->set_ignore_parser_errors( true );
-		$this->assertTrue( $s['parserErrorsIgnore'] );
+		$this->assertTrue( $s[ Settings::PARSER_ERRORS_IGNORE ] );
 
 		$s->set_ignore_parser_errors( false );
-		$this->assertFalse( $s['parserErrorsIgnore'] );
+		$this->assertFalse( $s[ Settings::PARSER_ERRORS_IGNORE ] );
 	}
 
 	/**
@@ -307,19 +317,49 @@ class Settings_Test extends PHP_Typography_Testcase {
 		$s = $this->settings;
 
 		// Default: no handler.
-		$this->assertEmpty( $s['parserErrorsHandler'] );
+		$this->assertEmpty( $s[ Settings::PARSER_ERRORS_HANDLER ] );
 
 		// Valid handler.
-		$s->set_parser_errors_handler( function( $errors ) {
-			return [];
-		} );
-		$this->assertInternalType( 'callable', $s['parserErrorsHandler'] );
-		$old_handler = $s['parserErrorsHandler'];
+		$s->set_parser_errors_handler(
+			function( $errors ) {
+				return [];
+			}
+		);
+		$this->assert_is_callable( $s[ Settings::PARSER_ERRORS_HANDLER ] );
+		$old_handler = $s[ Settings::PARSER_ERRORS_HANDLER ];
+	}
+
+	/**
+	 * Tests set_parser_errors_handler with an invalid callback.
+	 *
+	 * @covers ::set_parser_errors_handler
+	 */
+	public function test_set_parser_errors_handler_invalid() {
+		$s = $this->settings;
+
+		// Default: no handler.
+		$this->assertEmpty( $s[ Settings::PARSER_ERRORS_HANDLER ] );
+
+		// Valid handler.
+		$s->set_parser_errors_handler(
+			function( $errors ) {
+				return [];
+			}
+		);
+		$this->assert_is_callable( $s[ Settings::PARSER_ERRORS_HANDLER ] );
+		$old_handler = $s[ Settings::PARSER_ERRORS_HANDLER ];
+
+		// PHP < 7.0 raises an error instead of throwing an "exception".
+		if ( version_compare( phpversion(), '7.0.0', '<' ) ) {
+			$this->expect_exception( \PHPUnit_Framework_Error::class );
+		} else {
+			$this->expect_exception( \TypeError::class );
+		}
 
 		// Invalid handler, previous handler not changed.
 		$s->set_parser_errors_handler( 'foobar' );
-		$this->assertInternalType( 'callable', $s['parserErrorsHandler'] );
-		$this->assertSame( $old_handler, $s['parserErrorsHandler'] );
+		$this->assert_is_callable( $s[ Settings::PARSER_ERRORS_HANDLER ] );
+		$this->assertSame( $old_handler, $s[ Settings::PARSER_ERRORS_HANDLER ] );
 	}
 
 	/**
@@ -330,12 +370,15 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @uses PHP_Typography\Strings::maybe_split_parameters
 	 */
 	public function test_set_tags_to_ignore() {
-		$s = $this->settings;
-		$always_ignore = [ 'iframe', 'textarea', 'button', 'select', 'optgroup', 'option', 'map', 'style', 'head', 'title', 'script', 'applet', 'object', 'param', 'svg', 'math' ];
+		$s              = $this->settings;
+		$always_ignore  = [ 'iframe', 'textarea', 'button', 'select', 'optgroup', 'option', 'map', 'style', 'head', 'title', 'script', 'applet', 'object', 'param', 'svg', 'math' ];
+		$tags_to_ignore = [ 'code', 'head', 'kbd', 'object', 'option', 'pre', 'samp', 'script', 'noscript', 'noembed', 'select', 'style', 'textarea', 'title', 'var', 'math' ];
 
 		// Default tags.
-		$s->set_tags_to_ignore( [ 'code', 'head', 'kbd', 'object', 'option', 'pre', 'samp', 'script', 'noscript', 'noembed', 'select', 'style', 'textarea', 'title', 'var', 'math' ] );
-		$this->assertArraySubset( [ 'code', 'head', 'kbd', 'object', 'option', 'pre', 'samp', 'script', 'noscript', 'noembed', 'select', 'style', 'textarea', 'title', 'var', 'math' ], $s['ignoreTags'] );
+		$s->set_tags_to_ignore( $tags_to_ignore );
+		foreach ( $tags_to_ignore as $tag ) {
+			$this->assertContains( $tag, $s['ignoreTags'] );
+		}
 		foreach ( $always_ignore as $tag ) {
 			$this->assertContains( $tag, $s['ignoreTags'] );
 		}
@@ -388,10 +431,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_quotes() {
 		$this->settings->set_smart_quotes( true );
-		$this->assertTrue( $this->settings['smartQuotes'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_QUOTES ] );
 
 		$this->settings->set_smart_quotes( false );
-		$this->assertFalse( $this->settings['smartQuotes'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_QUOTES ] );
 	}
 
 	/**
@@ -401,10 +444,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_quote_style
 	 * @covers ::get_style
 	 *
+	 * @uses ::set_true_no_break_narrow_space
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
 	 */
 	public function test_set_smart_quotes_primary() {
 		$s = $this->settings;
+		$s->set_true_no_break_narrow_space();
 
 		$quote_styles = [
 			'doubleCurled',
@@ -427,7 +472,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 		foreach ( $quote_styles as $style ) {
 			$s->set_smart_quotes_primary( $style );
 
-			$this->assertSmartQuotesStyle( $style, $s->primary_quote_style()->open(), $s->primary_quote_style()->close() );
+			$this->assert_smart_quotes_style( $style, $s->primary_quote_style()->open(), $s->primary_quote_style()->close() );
 		}
 	}
 
@@ -439,12 +484,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_style
 	 *
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
-	 *
-	 * @expectedException \DomainException
-	 * @expectedExceptionMessageRegExp /^Invalid quote style \w+\.$/
 	 */
 	public function test_set_smart_quotes_primary_invalid() {
 		$s = $this->settings;
+
+		$this->expect_exception( \DomainException::class );
+		$this->expect_exception_message_matches( '/^Invalid quote style \w+\.$/' );
 
 		$s->set_smart_quotes_primary( 'invalidStyleName' );
 	}
@@ -477,10 +522,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_quote_style
 	 * @covers ::get_style
 	 *
+	 * @uses ::set_true_no_break_narrow_space
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
 	 */
 	public function test_set_smart_quotes_secondary() {
 		$s = $this->settings;
+		$s->set_true_no_break_narrow_space();
+
 		$quote_styles = [
 			'doubleCurled',
 			'doubleCurledReversed',
@@ -502,7 +550,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 		foreach ( $quote_styles as $style ) {
 			$s->set_smart_quotes_secondary( $style );
 
-			$this->assertSmartQuotesStyle( $style, $s->secondary_quote_style()->open(), $s->secondary_quote_style()->close() );
+			$this->assert_smart_quotes_style( $style, $s->secondary_quote_style()->open(), $s->secondary_quote_style()->close() );
 		}
 	}
 
@@ -514,12 +562,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_style
 	 *
 	 * @uses PHP_Typography\Settings\Quote_Style::get_styled_quotes
-	 *
-	 * @expectedException \DomainException
-	 * @expectedExceptionMessageRegExp /^Invalid quote style \w+\.$/
 	 */
 	public function test_set_smart_quotes_secondary_invalid() {
 		$s = $this->settings;
+
+		$this->expect_exception( \DomainException::class );
+		$this->expect_exception_message_matches( '/^Invalid quote style \w+\.$/' );
 
 		$s->set_smart_quotes_secondary( 'invalidStyleName' );
 	}
@@ -546,16 +594,36 @@ class Settings_Test extends PHP_Typography_Testcase {
 	}
 
 	/**
+	 * Tests set_smart_quotes_exceptions.
+	 *
+	 * @covers ::set_smart_quotes_exceptions
+	 */
+	public function test_set_smart_quotes_exceptions() {
+		$this->settings->set_smart_quotes_exceptions();
+
+		$exceptions = $this->settings[ Settings::SMART_QUOTES_EXCEPTIONS ];
+		$this->assertCount( 2, $exceptions );
+		$this->assertGreaterThan( 1, count( $exceptions['patterns'] ) );
+		$this->assertEquals( count( $exceptions['patterns'] ), count( $exceptions['replacements'] ) );
+
+		$this->settings->set_smart_quotes_exceptions( [ 'Yfoo' => 'Xfoo' ] );
+		$exceptions = $this->settings[ Settings::SMART_QUOTES_EXCEPTIONS ];
+		$this->assertCount( 2, $exceptions );
+		$this->assertEquals( [ 'Yfoo' ], $exceptions['patterns'] );
+		$this->assertEquals( [ 'Xfoo' ], $exceptions['replacements'] );
+	}
+
+	/**
 	 * Test set_smart_dashes.
 	 *
 	 * @covers ::set_smart_dashes
 	 */
 	public function test_set_smart_dashes() {
 		$this->settings->set_smart_dashes( true );
-		$this->assertTrue( $this->settings['smartDashes'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_DASHES ] );
 
 		$this->settings->set_smart_dashes( false );
-		$this->assertFalse( $this->settings['smartDashes'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_DASHES ] );
 	}
 
 	/**
@@ -567,7 +635,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @uses PHP_Typography\Settings\Dash_Style::get_styled_dashes
 	 */
 	public function test_set_smart_dashes_style() {
-		$s   = $this->settings;
+		$s = $this->settings;
 
 		$s->set_smart_dashes_style( 'traditionalUS' );
 		$dashes = $s->dash_style();
@@ -585,6 +653,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 		$this->assertSame( ' ', $dashes->parenthetical_space() );
 		$this->assertSame( U::HAIR_SPACE, $dashes->interval_space() );
 
+		$s->set_smart_dashes_style( 'internationalNoHairSpaces' );
+		$dashes = $s->dash_style();
+
+		$this->assertSame( U::EN_DASH, $dashes->parenthetical_dash() );
+		$this->assertSame( U::EN_DASH, $dashes->interval_dash() );
+		$this->assertSame( ' ', $dashes->parenthetical_space() );
+		$this->assertSame( '', $dashes->interval_space() );
 	}
 
 	/**
@@ -594,7 +669,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_style
 	 */
 	public function test_set_smart_dashes_style_with_object() {
-		$s   = $this->settings;
+		$s = $this->settings;
 
 		// Create a stub for the Token_Fixer interface.
 		$fake_dashes = $this->createMock( Dashes::class );
@@ -619,12 +694,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::get_style
 	 *
 	 * @uses PHP_Typography\Settings\Dash_Style::get_styled_dashes
-	 *
-	 * @expectedException \DomainException
-	 * @expectedExceptionMessageRegExp /^Invalid dash style \w+.$/
 	 */
 	public function test_set_smart_dashes_style_invalid() {
 		$s = $this->settings;
+
+		$this->expect_exception( \DomainException::class );
+		$this->expect_exception_message_matches( '/^Invalid dash style \w+\.$/' );
 
 		$s->set_smart_dashes_style( 'invalidStyleName' );
 	}
@@ -636,10 +711,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_ellipses() {
 		$this->settings->set_smart_ellipses( true );
-		$this->assertTrue( $this->settings['smartEllipses'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_ELLIPSES ] );
 
 		$this->settings->set_smart_ellipses( false );
-		$this->assertFalse( $this->settings['smartEllipses'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_ELLIPSES ] );
 	}
 
 	/**
@@ -649,10 +724,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_diacritics() {
 		$this->settings->set_smart_diacritics( true );
-		$this->assertTrue( $this->settings['smartDiacritics'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_DIACRITICS ] );
 
 		$this->settings->set_smart_diacritics( false );
-		$this->assertFalse( $this->settings['smartDiacritics'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_DIACRITICS ] );
 	}
 
 	/**
@@ -664,19 +739,19 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_diacritic_language() {
 		$this->settings->set_diacritic_language( 'en-US' );
-		$this->assertGreaterThan( 0, count( $this->settings['diacriticWords'] ) );
+		$this->assertGreaterThan( 0, count( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
 
 		$this->settings->set_diacritic_language( 'foobar' );
-		$this->assertFalse( isset( $this->settings['diacriticWords'] ) );
+		$this->assertFalse( isset( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
 
 		$this->settings->set_diacritic_language( 'de-DE' );
-		$this->assertTrue( isset( $this->settings['diacriticWords'] ) );
-		$this->assertGreaterThan( 0, count( $this->settings['diacriticWords'] ) );
+		$this->assertTrue( isset( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
+		$this->assertGreaterThan( 0, count( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
 
 		// Nothing changed since the last call.
 		$this->settings->set_diacritic_language( 'de-DE' );
-		$this->assertTrue( isset( $this->settings['diacriticWords'] ) );
-		$this->assertGreaterThan( 0, count( $this->settings['diacriticWords'] ) );
+		$this->assertTrue( isset( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
+		$this->assertGreaterThan( 0, count( $this->settings[ Settings::DIACRITIC_WORDS ] ) );
 	}
 
 	/**
@@ -717,6 +792,11 @@ class Settings_Test extends PHP_Typography_Testcase {
 				[],
 				[],
 			],
+			[
+				'foobar',
+				[],
+				[],
+			],
 		];
 	}
 
@@ -728,7 +808,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::update_diacritics_replacement_arrays
 	 * @covers ::parse_diacritics_rules
 	 *
-	 * @uses PHP_Typography\Arrays::array_map_assoc
+	 * @uses ::array_map_assoc
 	 *
 	 * @dataProvider provide_set_diacritic_custom_replacements_data
 	 *
@@ -742,15 +822,15 @@ class Settings_Test extends PHP_Typography_Testcase {
 		$s->set_diacritic_custom_replacements( $input );
 
 		foreach ( $keys as $key ) {
-			$this->assertArrayHasKey( $key, $s['diacriticCustomReplacements'] );
+			$this->assertArrayHasKey( $key, $s[ Settings::DIACRITIC_CUSTOM_REPLACEMENTS ] );
 		}
 
 		foreach ( $values as $value ) {
-			$this->assertContains( $value, $s['diacriticCustomReplacements'] );
+			$this->assertContains( $value, $s[ Settings::DIACRITIC_CUSTOM_REPLACEMENTS ] );
 		}
 
-		$this->assertCount( count( $keys ), $s['diacriticCustomReplacements'] );
-		$this->assertCount( count( $values ), $s['diacriticCustomReplacements'] );
+		$this->assertCount( count( $keys ), $s[ Settings::DIACRITIC_CUSTOM_REPLACEMENTS ] );
+		$this->assertCount( count( $values ), $s[ Settings::DIACRITIC_CUSTOM_REPLACEMENTS ] );
 	}
 
 	/**
@@ -760,10 +840,23 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_marks() {
 		$this->settings->set_smart_marks( true );
-		$this->assertTrue( $this->settings['smartMarks'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_MARKS ] );
 
 		$this->settings->set_smart_marks( false );
-		$this->assertFalse( $this->settings['smartMarks'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_MARKS ] );
+	}
+
+	/**
+	 * Test set_smart_area_units.
+	 *
+	 * @covers ::set_smart_area_units
+	 */
+	public function test_set_smart_area_units() {
+		$this->settings->set_smart_area_units( true );
+		$this->assertTrue( $this->settings[ Settings::SMART_AREA_UNITS ] );
+
+		$this->settings->set_smart_area_units( false );
+		$this->assertFalse( $this->settings[ Settings::SMART_AREA_UNITS ] );
 	}
 
 	/**
@@ -773,10 +866,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_math() {
 		$this->settings->set_smart_math( true );
-		$this->assertTrue( $this->settings['smartMath'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_MATH ] );
 
 		$this->settings->set_smart_math( false );
-		$this->assertFalse( $this->settings['smartMath'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_MATH ] );
 	}
 
 	/**
@@ -786,10 +879,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_exponents() {
 		$this->settings->set_smart_exponents( true );
-		$this->assertTrue( $this->settings['smartExponents'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_EXPONENTS ] );
 
 		$this->settings->set_smart_exponents( false );
-		$this->assertFalse( $this->settings['smartExponents'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_EXPONENTS ] );
 	}
 
 	/**
@@ -799,10 +892,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_fractions() {
 		$this->settings->set_smart_fractions( true );
-		$this->assertTrue( $this->settings['smartFractions'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_FRACTIONS ] );
 
 		$this->settings->set_smart_fractions( false );
-		$this->assertFalse( $this->settings['smartFractions'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_FRACTIONS ] );
 	}
 
 	/**
@@ -812,10 +905,23 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_smart_ordinal_suffix() {
 		$this->settings->set_smart_ordinal_suffix( true );
-		$this->assertTrue( $this->settings['smartOrdinalSuffix'] );
+		$this->assertTrue( $this->settings[ Settings::SMART_ORDINAL_SUFFIX ] );
 
 		$this->settings->set_smart_ordinal_suffix( false );
-		$this->assertFalse( $this->settings['smartOrdinalSuffix'] );
+		$this->assertFalse( $this->settings[ Settings::SMART_ORDINAL_SUFFIX ] );
+	}
+
+	/**
+	 * Tests set_smart_ordinal_suffix_match_roman_numerals.
+	 *
+	 * @covers ::set_smart_ordinal_suffix_match_roman_numerals
+	 */
+	public function test_set_smart_ordinal_suffix_match_roman_numerals() {
+		$this->settings->set_smart_ordinal_suffix_match_roman_numerals( true );
+		$this->assertTrue( $this->settings[ Settings::SMART_ORDINAL_SUFFIX_ROMAN_NUMERALS ] );
+
+		$this->settings->set_smart_ordinal_suffix_match_roman_numerals( false );
+		$this->assertFalse( $this->settings[ Settings::SMART_ORDINAL_SUFFIX_ROMAN_NUMERALS ] );
 	}
 
 	/**
@@ -825,10 +931,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_single_character_word_spacing() {
 		$this->settings->set_single_character_word_spacing( true );
-		$this->assertTrue( $this->settings['singleCharacterWordSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::SINGLE_CHARACTER_WORD_SPACING ] );
 
 		$this->settings->set_single_character_word_spacing( false );
-		$this->assertFalse( $this->settings['singleCharacterWordSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::SINGLE_CHARACTER_WORD_SPACING ] );
 	}
 
 	/**
@@ -838,10 +944,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_fraction_spacing() {
 		$this->settings->set_fraction_spacing( true );
-		$this->assertTrue( $this->settings['fractionSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::FRACTION_SPACING ] );
 
 		$this->settings->set_fraction_spacing( false );
-		$this->assertFalse( $this->settings['fractionSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::FRACTION_SPACING ] );
 	}
 
 	/**
@@ -851,10 +957,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_unit_spacing() {
 		$this->settings->set_unit_spacing( true );
-		$this->assertTrue( $this->settings['unitSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::UNIT_SPACING ] );
 
 		$this->settings->set_unit_spacing( false );
-		$this->assertFalse( $this->settings['unitSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::UNIT_SPACING ] );
 	}
 
 	/**
@@ -864,10 +970,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_numbered_abbreviation_spacing() {
 		$this->settings->set_numbered_abbreviation_spacing( true );
-		$this->assertTrue( $this->settings['numberedAbbreviationSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::NUMBERED_ABBREVIATION_SPACING ] );
 
 		$this->settings->set_numbered_abbreviation_spacing( false );
-		$this->assertFalse( $this->settings['numberedAbbreviationSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::NUMBERED_ABBREVIATION_SPACING ] );
 	}
 
 	/**
@@ -877,38 +983,72 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_french_punctuation_spacing() {
 		$this->settings->set_french_punctuation_spacing( true );
-		$this->assertTrue( $this->settings['frenchPunctuationSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::FRENCH_PUNCTUATION_SPACING ] );
 
 		$this->settings->set_french_punctuation_spacing( false );
-		$this->assertFalse( $this->settings['frenchPunctuationSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::FRENCH_PUNCTUATION_SPACING ] );
 	}
 
 	/**
 	 * Tests set_units.
 	 *
 	 * @covers ::set_units
-	 * @covers ::update_unit_pattern
 	 *
+	 * @uses ::update_unit_pattern
 	 * @uses PHP_Typography\Strings::maybe_split_parameters
 	 */
 	public function test_set_units() {
-		$units_as_array = [ 'foo', 'bar', 'xx/yy' ];
+		$units_as_array  = [ 'foo', 'bar', 'xx/yy' ];
 		$units_as_string = implode( ', ', $units_as_array );
 
 		$this->settings->set_units( $units_as_array );
 		foreach ( $units_as_array as $unit ) {
-			$this->assertContains( $unit, $this->settings['units'] );
+			$this->assertContains( $unit, $this->settings[ Settings::UNITS ] );
 		}
 
 		$this->settings->set_units( [] );
 		foreach ( $units_as_array as $unit ) {
-			$this->assertNotContains( $unit, $this->settings['units'] );
+			$this->assertNotContains( $unit, $this->settings[ Settings::UNITS ] );
 		}
 
 		$this->settings->set_units( $units_as_string );
 		foreach ( $units_as_array as $unit ) {
-			$this->assertContains( $unit, $this->settings['units'] );
+			$this->assertContains( $unit, $this->settings[ Settings::UNITS ] );
 		}
+	}
+
+	/**
+	 * Provides data for testing update_unit_pattern.
+	 *
+	 * @return array
+	 */
+	public function provide_update_unit_pattern_data() {
+		return [
+			[
+				[ 'km/h', 'T$' ],
+				'km\/h|T\$|',
+			],
+			[
+				[ '¥', 'm[a]', 'n.', 'm^2' ],
+				'¥|m\[a\]|n\.|m\^2|',
+			],
+		];
+	}
+
+	/**
+	 * Tests update_unit_pattern.
+	 *
+	 * @covers ::update_unit_pattern
+	 *
+	 * @dataProvider provide_update_unit_pattern_data
+	 *
+	 * @param  string[] $units An array of units.
+	 * @param  string   $regex The resulting regular expression.
+	 */
+	public function test_update_unit_pattern( array $units, $regex ) {
+		$result = $this->invoke_method( $this->settings, 'update_unit_pattern', [ $units ] );
+
+		$this->assertSame( $regex, $result );
 	}
 
 	/**
@@ -918,10 +1058,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_dash_spacing() {
 		$this->settings->set_dash_spacing( true );
-		$this->assertTrue( $this->settings['dashSpacing'] );
+		$this->assertTrue( $this->settings[ Settings::DASH_SPACING ] );
 
 		$this->settings->set_dash_spacing( false );
-		$this->assertFalse( $this->settings['dashSpacing'] );
+		$this->assertFalse( $this->settings[ Settings::DASH_SPACING ] );
 	}
 
 	/**
@@ -931,10 +1071,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_space_collapse() {
 		$this->settings->set_space_collapse( true );
-		$this->assertTrue( $this->settings['spaceCollapse'] );
+		$this->assertTrue( $this->settings[ Settings::SPACE_COLLAPSE ] );
 
 		$this->settings->set_space_collapse( false );
-		$this->assertFalse( $this->settings['spaceCollapse'] );
+		$this->assertFalse( $this->settings[ Settings::SPACE_COLLAPSE ] );
 	}
 
 	/**
@@ -944,10 +1084,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_dewidow() {
 		$this->settings->set_dewidow( true );
-		$this->assertTrue( $this->settings['dewidow'] );
+		$this->assertTrue( $this->settings[ Settings::DEWIDOW ] );
 
 		$this->settings->set_dewidow( false );
-		$this->assertFalse( $this->settings['dewidow'] );
+		$this->assertFalse( $this->settings[ Settings::DEWIDOW ] );
 	}
 
 	/**
@@ -957,13 +1097,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_max_dewidow_length() {
 		$this->settings->set_max_dewidow_length( 10 );
-		$this->assertSame( 10, $this->settings['dewidowMaxLength'] );
+		$this->assertSame( 10, $this->settings[ Settings::DEWIDOW_MAX_LENGTH ] );
 
 		$this->settings->set_max_dewidow_length( 1 );
-		$this->assertSame( 5, $this->settings['dewidowMaxLength'] );
+		$this->assertSame( 5, $this->settings[ Settings::DEWIDOW_MAX_LENGTH ] );
 
 		$this->settings->set_max_dewidow_length( 2 );
-		$this->assertSame( 2, $this->settings['dewidowMaxLength'] );
+		$this->assertSame( 2, $this->settings[ Settings::DEWIDOW_MAX_LENGTH ] );
 	}
 
 	/**
@@ -973,19 +1113,19 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_dewidow_word_number() {
 		$this->settings->set_dewidow_word_number( 10 );
-		$this->assertSame( 1, $this->settings['dewidowWordNumber'] );
+		$this->assertSame( 1, $this->settings[ Settings::DEWIDOW_WORD_NUMBER ] );
 
 		$this->settings->set_dewidow_word_number( 1 );
-		$this->assertSame( 1, $this->settings['dewidowWordNumber'] );
+		$this->assertSame( 1, $this->settings[ Settings::DEWIDOW_WORD_NUMBER ] );
 
 		$this->settings->set_dewidow_word_number( 2 );
-		$this->assertSame( 2, $this->settings['dewidowWordNumber'] );
+		$this->assertSame( 2, $this->settings[ Settings::DEWIDOW_WORD_NUMBER ] );
 
 		$this->settings->set_dewidow_word_number( 3 );
-		$this->assertSame( 3, $this->settings['dewidowWordNumber'] );
+		$this->assertSame( 3, $this->settings[ Settings::DEWIDOW_WORD_NUMBER ] );
 
 		$this->settings->set_dewidow_word_number( 4 );
-		$this->assertSame( 1, $this->settings['dewidowWordNumber'] );
+		$this->assertSame( 1, $this->settings[ Settings::DEWIDOW_WORD_NUMBER ] );
 	}
 
 	/**
@@ -995,13 +1135,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_max_dewidow_pull() {
 		$this->settings->set_max_dewidow_pull( 10 );
-		$this->assertSame( 10, $this->settings['dewidowMaxPull'] );
+		$this->assertSame( 10, $this->settings[ Settings::DEWIDOW_MAX_PULL ] );
 
 		$this->settings->set_max_dewidow_pull( 1 );
-		$this->assertSame( 5, $this->settings['dewidowMaxPull'] );
+		$this->assertSame( 5, $this->settings[ Settings::DEWIDOW_MAX_PULL ] );
 
 		$this->settings->set_max_dewidow_pull( 2 );
-		$this->assertSame( 2, $this->settings['dewidowMaxPull'] );
+		$this->assertSame( 2, $this->settings[ Settings::DEWIDOW_MAX_PULL ] );
 	}
 
 	/**
@@ -1011,10 +1151,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_wrap_hard_hyphens() {
 		$this->settings->set_wrap_hard_hyphens( true );
-		$this->assertTrue( $this->settings['hyphenHardWrap'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHEN_HARD_WRAP ] );
 
 		$this->settings->set_wrap_hard_hyphens( false );
-		$this->assertFalse( $this->settings['hyphenHardWrap'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHEN_HARD_WRAP ] );
 	}
 
 	/**
@@ -1024,10 +1164,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_url_wrap() {
 		$this->settings->set_url_wrap( true );
-		$this->assertTrue( $this->settings['urlWrap'] );
+		$this->assertTrue( $this->settings[ Settings::URL_WRAP ] );
 
 		$this->settings->set_url_wrap( false );
-		$this->assertFalse( $this->settings['urlWrap'] );
+		$this->assertFalse( $this->settings[ Settings::URL_WRAP ] );
 	}
 
 	/**
@@ -1037,10 +1177,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_email_wrap() {
 		$this->settings->set_email_wrap( true );
-		$this->assertTrue( $this->settings['emailWrap'] );
+		$this->assertTrue( $this->settings[ Settings::EMAIL_WRAP ] );
 
 		$this->settings->set_email_wrap( false );
-		$this->assertFalse( $this->settings['emailWrap'] );
+		$this->assertFalse( $this->settings[ Settings::EMAIL_WRAP ] );
 	}
 
 	/**
@@ -1050,13 +1190,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_min_after_url_wrap() {
 		$this->settings->set_min_after_url_wrap( 10 );
-		$this->assertSame( 10, $this->settings['urlMinAfterWrap'] );
+		$this->assertSame( 10, $this->settings[ Settings::URL_MIN_AFTER_WRAP ] );
 
 		$this->settings->set_min_after_url_wrap( 0 );
-		$this->assertSame( 5, $this->settings['urlMinAfterWrap'] );
+		$this->assertSame( 5, $this->settings[ Settings::URL_MIN_AFTER_WRAP ] );
 
 		$this->settings->set_min_after_url_wrap( 1 );
-		$this->assertSame( 1, $this->settings['urlMinAfterWrap'] );
+		$this->assertSame( 1, $this->settings[ Settings::URL_MIN_AFTER_WRAP ] );
 	}
 
 	/**
@@ -1066,10 +1206,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_style_ampersands() {
 		$this->settings->set_style_ampersands( true );
-		$this->assertTrue( $this->settings['styleAmpersands'] );
+		$this->assertTrue( $this->settings[ Settings::STYLE_AMPERSANDS ] );
 
 		$this->settings->set_style_ampersands( false );
-		$this->assertFalse( $this->settings['styleAmpersands'] );
+		$this->assertFalse( $this->settings[ Settings::STYLE_AMPERSANDS ] );
 	}
 
 	/**
@@ -1079,10 +1219,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_style_caps() {
 		$this->settings->set_style_caps( true );
-		$this->assertTrue( $this->settings['styleCaps'] );
+		$this->assertTrue( $this->settings[ Settings::STYLE_CAPS ] );
 
 		$this->settings->set_style_caps( false );
-		$this->assertFalse( $this->settings['styleCaps'] );
+		$this->assertFalse( $this->settings[ Settings::STYLE_CAPS ] );
 	}
 
 	/**
@@ -1092,10 +1232,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_style_initial_quotes() {
 		$this->settings->set_style_initial_quotes( true );
-		$this->assertTrue( $this->settings['styleInitialQuotes'] );
+		$this->assertTrue( $this->settings[ Settings::STYLE_INITIAL_QUOTES ] );
 
 		$this->settings->set_style_initial_quotes( false );
-		$this->assertFalse( $this->settings['styleInitialQuotes'] );
+		$this->assertFalse( $this->settings[ Settings::STYLE_INITIAL_QUOTES ] );
 	}
 
 	/**
@@ -1105,10 +1245,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_style_numbers() {
 		$this->settings->set_style_numbers( true );
-		$this->assertTrue( $this->settings['styleNumbers'] );
+		$this->assertTrue( $this->settings[ Settings::STYLE_NUMBERS ] );
 
 		$this->settings->set_style_numbers( false );
-		$this->assertFalse( $this->settings['styleNumbers'] );
+		$this->assertFalse( $this->settings[ Settings::STYLE_NUMBERS ] );
 	}
 
 	/**
@@ -1118,10 +1258,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_style_hanging_punctuation() {
 		$this->settings->set_style_hanging_punctuation( true );
-		$this->assertTrue( $this->settings['styleHangingPunctuation'] );
+		$this->assertTrue( $this->settings[ Settings::STYLE_HANGING_PUNCTUATION ] );
 
 		$this->settings->set_style_hanging_punctuation( false );
-		$this->assertFalse( $this->settings['styleHangingPunctuation'] );
+		$this->assertFalse( $this->settings[ Settings::STYLE_HANGING_PUNCTUATION ] );
 	}
 
 	/**
@@ -1130,22 +1270,22 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @covers ::set_initial_quote_tags
 	 */
 	public function test_set_initial_quote_tags() {
-		$tags_as_array = [ 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'div' ];
+		$tags_as_array  = [ 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'div' ];
 		$tags_as_string = implode( ', ', $tags_as_array );
 
 		$this->settings->set_initial_quote_tags( $tags_as_array );
 		foreach ( $tags_as_array as $tag ) {
-			$this->assertArrayHasKey( $tag, $this->settings['initialQuoteTags'] );
+			$this->assertArrayHasKey( $tag, $this->settings[ Settings::INITIAL_QUOTE_TAGS ] );
 		}
 
 		$this->settings->set_initial_quote_tags( [] );
 		foreach ( $tags_as_array as $tag ) {
-			$this->assertArrayNotHasKey( $tag, $this->settings['initialQuoteTags'] );
+			$this->assertArrayNotHasKey( $tag, $this->settings[ Settings::INITIAL_QUOTE_TAGS ] );
 		}
 
 		$this->settings->set_initial_quote_tags( $tags_as_string );
 		foreach ( $tags_as_array as $tag ) {
-			$this->assertArrayHasKey( $tag, $this->settings['initialQuoteTags'] );
+			$this->assertArrayHasKey( $tag, $this->settings[ Settings::INITIAL_QUOTE_TAGS ] );
 		}
 	}
 
@@ -1156,10 +1296,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenation() {
 		$this->settings->set_hyphenation( true );
-		$this->assertTrue( $this->settings['hyphenation'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHENATION ] );
 
 		$this->settings->set_hyphenation( false );
-		$this->assertFalse( $this->settings['hyphenation'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHENATION ] );
 	}
 
 	/**
@@ -1191,15 +1331,16 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenation_language( $lang, $success ) {
 		$s = $this->settings;
+
 		$s['hyphenationExceptions'] = []; // necessary for full coverage.
 
 		$s->set_hyphenation_language( $lang );
 
 		// If the hyphenator object has not instantiated yet, hyphenLanguage will be set nonetheless.
 		if ( $success || ! isset( $s->hyphenator ) ) {
-			$this->assertSame( $lang, $s['hyphenLanguage'] );
+			$this->assertSame( $lang, $s[ Settings::HYPHENATION_LANGUAGE ] );
 		} else {
-			$this->assertFalse( isset( $s['hyphenLanguage'] ) );
+			$this->assertFalse( isset( $s[ Settings::HYPHENATION_LANGUAGE ] ) );
 		}
 	}
 
@@ -1219,6 +1360,7 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenation_language_again( $lang, $success ) {
 		$s = $this->settings;
+
 		$s['hyphenationExceptions'] = []; // necessary for full coverage.
 
 		for ( $i = 0; $i < 2; ++$i ) {
@@ -1226,13 +1368,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 
 			// If the hyphenator object has not instantiated yet, hyphenLanguage will be set nonetheless.
 			if ( $success ) {
-				$this->assertSame( $lang, $s['hyphenLanguage'], "Round $i, success" );
+				$this->assertSame( $lang, $s[ Settings::HYPHENATION_LANGUAGE ], "Round $i, success" );
 			} elseif ( ! isset( $s->hyphenator ) ) {
-				$this->assertSame( $lang, $s['hyphenLanguage'], "Round $i, no hyphenator" );
+				$this->assertSame( $lang, $s[ Settings::HYPHENATION_LANGUAGE ], "Round $i, no hyphenator" );
 				// Clear hyphenation language if there was no hypehnator object.
-				unset( $s['hyphenLanguage'] );
+				unset( $s[ Settings::HYPHENATION_LANGUAGE ] );
 			} else {
-				$this->assertFalse( isset( $s['hyphenLanguage'] ), "Round $i, unsuccessful" );
+				$this->assertFalse( isset( $s[ Settings::HYPHENATION_LANGUAGE ] ), "Round $i, unsuccessful" );
 			}
 		}
 	}
@@ -1247,13 +1389,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_min_length_hyphenation() {
 		$this->settings->set_min_length_hyphenation( 1 ); // too low, resets to default 5.
-		$this->assertSame( 5, $this->settings['hyphenMinLength'] );
+		$this->assertSame( 5, $this->settings[ Settings::HYPHENATION_MIN_LENGTH ] );
 
 		$this->settings->set_min_length_hyphenation( 2 );
-		$this->assertSame( 2, $this->settings['hyphenMinLength'] );
+		$this->assertSame( 2, $this->settings[ Settings::HYPHENATION_MIN_LENGTH ] );
 
 		$this->settings->set_min_length_hyphenation( 66 );
-		$this->assertSame( 66, $this->settings['hyphenMinLength'] );
+		$this->assertSame( 66, $this->settings[ Settings::HYPHENATION_MIN_LENGTH ] );
 	}
 
 	/**
@@ -1263,13 +1405,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_min_before_hyphenation() {
 		$this->settings->set_min_before_hyphenation( 0 ); // too low, resets to default 3.
-		$this->assertSame( 3, $this->settings['hyphenMinBefore'] );
+		$this->assertSame( 3, $this->settings[ Settings::HYPHENATION_MIN_BEFORE ] );
 
 		$this->settings->set_min_before_hyphenation( 1 );
-		$this->assertSame( 1, $this->settings['hyphenMinBefore'] );
+		$this->assertSame( 1, $this->settings[ Settings::HYPHENATION_MIN_BEFORE ] );
 
 		$this->settings->set_min_before_hyphenation( 66 );
-		$this->assertSame( 66, $this->settings['hyphenMinBefore'] );
+		$this->assertSame( 66, $this->settings[ Settings::HYPHENATION_MIN_BEFORE ] );
 
 	}
 
@@ -1280,13 +1422,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_min_after_hyphenation() {
 		$this->settings->set_min_after_hyphenation( 0 ); // too low, resets to default 2.
-		$this->assertSame( 2, $this->settings['hyphenMinAfter'] );
+		$this->assertSame( 2, $this->settings[ Settings::HYPHENATION_MIN_AFTER ] );
 
 		$this->settings->set_min_after_hyphenation( 1 );
-		$this->assertSame( 1, $this->settings['hyphenMinAfter'] );
+		$this->assertSame( 1, $this->settings[ Settings::HYPHENATION_MIN_AFTER ] );
 
 		$this->settings->set_min_after_hyphenation( 66 );
-		$this->assertSame( 66, $this->settings['hyphenMinAfter'] );
+		$this->assertSame( 66, $this->settings[ Settings::HYPHENATION_MIN_AFTER ] );
 	}
 
 	/**
@@ -1296,10 +1438,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenate_headings() {
 		$this->settings->set_hyphenate_headings( true );
-		$this->assertTrue( $this->settings['hyphenateTitle'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHENATE_HEADINGS ] );
 
 		$this->settings->set_hyphenate_headings( false );
-		$this->assertFalse( $this->settings['hyphenateTitle'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHENATE_HEADINGS ] );
 	}
 
 	/**
@@ -1309,10 +1451,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenate_all_caps() {
 		$this->settings->set_hyphenate_all_caps( true );
-		$this->assertTrue( $this->settings['hyphenateAllCaps'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHENATE_ALL_CAPS ] );
 
 		$this->settings->set_hyphenate_all_caps( false );
-		$this->assertFalse( $this->settings['hyphenateAllCaps'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHENATE_ALL_CAPS ] );
 	}
 
 	/**
@@ -1322,10 +1464,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenate_title_case() {
 		$this->settings->set_hyphenate_title_case( true );
-		$this->assertTrue( $this->settings['hyphenateTitleCase'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHENATE_TITLE_CASE ] );
 
 		$this->settings->set_hyphenate_title_case( false );
-		$this->assertFalse( $this->settings['hyphenateTitleCase'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHENATE_TITLE_CASE ] );
 	}
 
 	/**
@@ -1335,10 +1477,10 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_set_hyphenate_compounds() {
 		$this->settings->set_hyphenate_compounds( true );
-		$this->assertTrue( $this->settings['hyphenateCompounds'] );
+		$this->assertTrue( $this->settings[ Settings::HYPHENATE_COMPOUNDS ] );
 
 		$this->settings->set_hyphenate_compounds( false );
-		$this->assertFalse( $this->settings['hyphenateCompounds'] );
+		$this->assertFalse( $this->settings[ Settings::HYPHENATE_COMPOUNDS ] );
 	}
 
 	/**
@@ -1355,13 +1497,13 @@ class Settings_Test extends PHP_Typography_Testcase {
 
 		$exceptions = [ 'Hu-go', 'Fö-ba-ß' ];
 		$s->set_hyphenation_exceptions( $exceptions );
-		$this->assertContainsOnly( 'string', $s['hyphenationCustomExceptions'] );
-		$this->assertCount( 2, $s['hyphenationCustomExceptions'] );
+		$this->assertContainsOnly( 'string', $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
+		$this->assertCount( 2, $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
 
 		$exceptions = [ 'bar-foo' ];
 		$s->set_hyphenation_exceptions( $exceptions );
-		$this->assertContainsOnly( 'string', $s['hyphenationCustomExceptions'] );
-		$this->assertCount( 1, $s['hyphenationCustomExceptions'] );
+		$this->assertContainsOnly( 'string', $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
+		$this->assertCount( 1, $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
 	}
 
 	/**
@@ -1374,12 +1516,12 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 * @uses PHP_Typography\Strings::maybe_split_parameters
 	 */
 	public function test_set_hyphenation_exceptions_string() {
-		$s = $this->settings;
+		$s          = $this->settings;
 		$exceptions = 'Hu-go, Fö-ba-ß';
 
 		$s->set_hyphenation_exceptions( $exceptions );
-		$this->assertContainsOnly( 'string', $s['hyphenationCustomExceptions'] );
-		$this->assertCount( 2, $s['hyphenationCustomExceptions'] );
+		$this->assertContainsOnly( 'string', $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
+		$this->assertCount( 2, $s[ Settings::HYPHENATION_CUSTOM_EXCEPTIONS ] );
 	}
 
 	/**
@@ -1393,6 +1535,11 @@ class Settings_Test extends PHP_Typography_Testcase {
 	 */
 	public function test_get_hash() {
 		$s = $this->settings;
+
+		// Finish initialization.
+		$s->set_smart_quotes_primary();
+		$s->set_smart_quotes_secondary();
+		$s->set_smart_dashes_style();
 
 		$s->set_smart_quotes( true );
 		$hash1 = $s->get_hash( 10 );
@@ -1444,5 +1591,106 @@ class Settings_Test extends PHP_Typography_Testcase {
 
 		$s->set_true_no_break_narrow_space( true ); // defaults to false.
 		$this->assertSame( $s->no_break_narrow_space(), U::NO_BREAK_NARROW_SPACE );
+	}
+
+	/**
+	 * Tests apply_character_mapping.
+	 *
+	 * @covers ::remap_character
+	 */
+	public function test_remap_character() {
+		$mapping = [
+			'a' => 'A',
+			'r' => 'z',
+		];
+
+		$s = new Settings( false, $mapping );
+		$this->assert_attribute_same( $mapping, 'unicode_mapping', $s );
+
+		$s->remap_character( 'a', 'a' );
+		$this->assert_attribute_same( [ 'r' => 'z' ], 'unicode_mapping', $s );
+
+		$s->remap_character( U::NO_BREAK_NARROW_SPACE, 'x' );
+		$this->assert_attribute_count( 2, 'unicode_mapping', $s );
+		$this->assert_attribute_contains( 'x', 'unicode_mapping', $s );
+		$this->assert_attribute_same( 'x', 'no_break_narrow_space', $s );
+	}
+
+
+	/**
+	 * Provides data for testing apply_character_mapping.
+	 *
+	 * @return array
+	 */
+	public function provide_apply_character_mapping_data() {
+		return [
+			[ 'foobar', 'foobAz' ],
+			[ [ 'foobar' ], [ 'foobAz' ] ],
+			[ [ 'foobar', 'fugazi' ], [ 'foobAz', 'fugAzi' ] ],
+			[ '', '' ],
+		];
+	}
+
+	/**
+	 * Tests apply_character_mapping.
+	 *
+	 * @covers ::apply_character_mapping
+	 *
+	 * @dataProvider provide_apply_character_mapping_data
+	 *
+	 * @param  string|string[] $input  The input.
+	 * @param  string|string[] $result The expected result.
+	 */
+	public function test_apply_character_mapping( $input, $result ) {
+		$mapping = [
+			'a' => 'A',
+			'r' => 'z',
+		];
+
+		$s = new Settings( false, $mapping );
+
+		$this->assertSame( $result, $s->apply_character_mapping( $input ) );
+	}
+
+	/**
+	 * Provide data for testing array_map_assoc.
+	 *
+	 * @return array
+	 */
+	public function provide_array_map_assoc_data() {
+		return [
+			[
+				function( $key, $value ) {
+						return [ $value => $value * 2 ];
+				},
+				[ 1, 2, 3 ],
+				[
+					1 => 2,
+					2 => 4,
+					3 => 6,
+				],
+			],
+			[
+				function( $key, $value ) {
+						return [];
+				},
+				[ 1, 2, 3 ],
+				[],
+			],
+		];
+	}
+
+	/**
+	 * Test array_map_assoc.
+	 *
+	 * @covers ::array_map_assoc
+	 * @dataProvider provide_array_map_assoc_data
+	 *
+	 * @param  callable $callable The function to apply to the array.
+	 * @param  array    $array    Input array.
+	 * @param  array    $result   Expected output array.
+	 */
+	public function test_array_map_assoc( callable $callable, array $array, array $result ) {
+		$this->assertSame( $result, $this->invoke_static_method( Settings::class, 'array_map_assoc', [ $callable, $array ] ) );
 	}
 }

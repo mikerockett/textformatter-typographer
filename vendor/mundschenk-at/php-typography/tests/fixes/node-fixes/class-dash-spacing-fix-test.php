@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes\Dash_Spacing_Fix;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes\Dash_Spacing_Fix;
+use PHP_Typography\Settings;
 
 /**
  * Dash_Spacing_Fix unit test.
@@ -34,7 +34,6 @@ use \PHP_Typography\Settings;
  * @usesDefaultClass \PHP_Typography\Fixes\Node_Fixes\Dash_Spacing_Fix
  *
  * @uses ::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -48,8 +47,8 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Dash_Spacing_Fix();
 	}
@@ -72,6 +71,11 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 				'international',
 			],
 			[
+				'Ein &ndash; mehr oder weniger &ndash; guter Gedanke, 1908&ndash;2008',
+				'Ein &ndash; mehr oder weniger &ndash; guter Gedanke, 1908&ndash;2008',
+				'internationalNoHairSpaces',
+			],
+			[
 				"We just don't know &mdash; really&mdash;, but you know, &ndash;",
 				"We just don't know&thinsp;&mdash;&thinsp;really&thinsp;&mdash;&thinsp;, but you know, &ndash;",
 				'traditionalUS',
@@ -82,6 +86,11 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 				'international',
 			],
 			[
+				"We just don't know &mdash; really&mdash;, but you know, &ndash;",
+				"We just don't know&mdash;really&mdash;, but you know, &ndash;",
+				'internationalNoHairSpaces',
+			],
+			[
 				'Auch 3.&ndash;8. März sollte die &mdash; richtigen &mdash; Gedankenstriche verwenden.',
 				'Auch 3.&thinsp;&ndash;&thinsp;8. M&auml;rz sollte die&thinsp;&mdash;&thinsp;richtigen&thinsp;&mdash;&thinsp;Gedankenstriche verwenden.',
 				'traditionalUS',
@@ -90,6 +99,11 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 				'Auch 3.&ndash;8. März sollte die &ndash; richtigen &ndash; Gedankenstriche verwenden.',
 				'Auch 3.&#8202;&ndash;&#8202;8. M&auml;rz sollte die &ndash; richtigen &ndash; Gedankenstriche verwenden.',
 				'international',
+			],
+			[
+				'Auch 3.&ndash;8. März sollte die &ndash; richtigen &ndash; Gedankenstriche verwenden.',
+				'Auch 3.&ndash;8. M&auml;rz sollte die &ndash; richtigen &ndash; Gedankenstriche verwenden.',
+				'internationalNoHairSpaces',
 			],
 		];
 	}
@@ -120,7 +134,7 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 	 * @param string $result Entity-escaped result.
 	 * @param string $style  Dash style.
 	 */
-	 public function test_apply( $input, $result, $style ) {
+	public function test_apply( $input, $result, $style ) {
 		$this->s->set_dash_spacing( true );
 		$this->s->set_smart_dashes_style( $style );
 
@@ -138,13 +152,16 @@ class Dash_Spacing_Fix_Test extends Node_Fix_Testcase {
 	 *
 	 * @param string $input HTML input.
 	 */
-	 public function test_apply_unchanged( $input ) {
+	public function test_apply_unchanged( $input ) {
 		$this->s->set_dash_spacing( true );
 
 		$this->s->set_smart_dashes_style( 'traditionalUS' );
 		$this->assertFixResultSame( $input, $input );
 
 		$this->s->set_smart_dashes_style( 'international' );
+		$this->assertFixResultSame( $input, $input );
+
+		$this->s->set_smart_dashes_style( 'internationalNoHairSpaces' );
 		$this->assertFixResultSame( $input, $input );
 	}
 

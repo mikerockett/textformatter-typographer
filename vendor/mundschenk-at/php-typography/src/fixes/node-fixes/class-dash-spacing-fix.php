@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2014-2017 Peter Putzer.
+ *  Copyright 2014-2019 Peter Putzer.
  *  Copyright 2009-2011 KINGdesk, LLC.
  *
  *  This program is free software; you can redistribute it and/or modify modify
@@ -27,9 +27,9 @@
 
 namespace PHP_Typography\Fixes\Node_Fixes;
 
-use \PHP_Typography\DOM;
-use \PHP_Typography\Settings;
-use \PHP_Typography\U;
+use PHP_Typography\DOM;
+use PHP_Typography\Settings;
+use PHP_Typography\U;
 
 /**
  * Applies spacing around dashes (if enabled).
@@ -40,6 +40,7 @@ use \PHP_Typography\U;
  */
 class Dash_Spacing_Fix extends Abstract_Node_Fix {
 
+	// Mandatory UTF-8 modifier.
 	const EM_DASH_SPACING = '/
 		(?:
 			\s
@@ -104,21 +105,27 @@ class Dash_Spacing_Fix extends Abstract_Node_Fix {
 	 * @param bool     $is_title Optional. Default false.
 	 */
 	public function apply( \DOMText $textnode, Settings $settings, $is_title = false ) {
-		if ( empty( $settings['dashSpacing'] ) ) {
+		if ( empty( $settings[ Settings::DASH_SPACING ] ) ) {
 			return;
 		}
 
 		// Various special characters and regular expressions.
 		$s = $settings->dash_style();
 
-		if ( $s != $this->cached_dash_style ) { // WPCS: loose comparison ok.
+		if ( $s != $this->cached_dash_style ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- object value comparison.
 			$this->update_dash_spacing_regex( $s->parenthetical_dash(), $s->parenthetical_space(), $s->interval_dash(), $s->interval_space() );
 			$this->cached_dash_style = $s;
 		}
 
-		$textnode->data = preg_replace( self::EM_DASH_SPACING,             $this->em_dash_replacement,            $textnode->data );
-		$textnode->data = preg_replace( $this->parenthetical_dash_spacing, $this->parenthetical_dash_replacement, $textnode->data );
-		$textnode->data = preg_replace( $this->interval_dash_spacing,      $this->interval_dash_replacement,      $textnode->data );
+		// Cache $textnode->data for this fix.
+		$node_data = $textnode->data;
+
+		$node_data = \preg_replace( self::EM_DASH_SPACING,             $this->em_dash_replacement,            $node_data );
+		$node_data = \preg_replace( $this->parenthetical_dash_spacing, $this->parenthetical_dash_replacement, $node_data );
+		$node_data = \preg_replace( $this->interval_dash_spacing,      $this->interval_dash_replacement,      $node_data );
+
+		// Restore textnode content.
+		$textnode->data = $node_data;
 	}
 
 	/**
@@ -130,6 +137,7 @@ class Dash_Spacing_Fix extends Abstract_Node_Fix {
 	 * @param string $interval_space      The space character used around interval dashes.
 	 */
 	private function update_dash_spacing_regex( $parenthetical, $parenthetical_space, $interval, $interval_space ) {
+		// Mandatory UTF-8 modifier.
 		$this->parenthetical_dash_spacing = "/
 			(?:
 				\s
@@ -138,6 +146,7 @@ class Dash_Spacing_Fix extends Abstract_Node_Fix {
 			)
 		/xu";
 
+		// Mandatory UTF-8 modifier.
 		$this->interval_dash_spacing = "/
 			(?:
 				(?<=\S)             # lookbehind assertion

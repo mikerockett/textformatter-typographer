@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Style_Hanging_Punctuation_Fix unit test.
@@ -37,7 +37,6 @@ use \PHP_Typography\Settings;
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::__construct
  * @uses PHP_Typography\Fixes\Node_Fixes\Abstract_Node_Fix::remove_adjacent_characters
  * @uses PHP_Typography\Fixes\Node_Fixes\Classes_Dependent_Fix::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -52,8 +51,8 @@ class Style_Hanging_Punctuation_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Node_Fixes\Style_Hanging_Punctuation_Fix( 'push-single', 'push-double', 'pull-single', 'pull-double' );
 	}
@@ -62,14 +61,16 @@ class Style_Hanging_Punctuation_Fix_Test extends Node_Fix_Testcase {
 	 * Tests the constructor.
 	 *
 	 * @covers ::__construct
+	 *
+	 * @uses PHP_Typography\RE::escape_tags
 	 */
 	public function test_constructor() {
 		$this->fix = new Node_Fixes\Style_Hanging_Punctuation_Fix( 'alpha', 'beta', 'gamma', 'delta' );
 
-		$this->assertAttributeEquals( 'alpha', 'push_single_class', $this->fix );
-		$this->assertAttributeEquals( 'beta',  'push_double_class', $this->fix );
-		$this->assertAttributeEquals( 'gamma', 'pull_single_class', $this->fix );
-		$this->assertAttributeEquals( 'delta', 'pull_double_class', $this->fix );
+		$this->assert_attribute_same( 'alpha', 'push_single_class', $this->fix );
+		$this->assert_attribute_same( 'beta',  'push_double_class', $this->fix );
+		$this->assert_attribute_same( 'gamma', 'pull_single_class', $this->fix );
+		$this->assert_attribute_same( 'delta', 'pull_double_class', $this->fix );
 	}
 
 	/**
@@ -106,6 +107,7 @@ class Style_Hanging_Punctuation_Fix_Test extends Node_Fix_Testcase {
 	 * @covers ::apply_internal
 	 *
 	 * @uses ::apply
+	 * @uses PHP_Typography\RE::escape_tags
 	 *
 	 * @dataProvider provide_style_hanging_punctuation_data
 	 *
@@ -126,6 +128,7 @@ class Style_Hanging_Punctuation_Fix_Test extends Node_Fix_Testcase {
 	 * @covers ::apply_internal
 	 *
 	 * @uses ::apply
+	 * @uses PHP_Typography\RE::escape_tags
 	 *
 	 * @dataProvider provide_style_hanging_punctuation_data
 	 *

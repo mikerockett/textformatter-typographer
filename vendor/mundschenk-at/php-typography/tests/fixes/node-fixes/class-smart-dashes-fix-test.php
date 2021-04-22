@@ -2,7 +2,7 @@
 /**
  *  This file is part of PHP-Typography.
  *
- *  Copyright 2015-2017 Peter Putzer.
+ *  Copyright 2015-2019 Peter Putzer.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 namespace PHP_Typography\Tests\Fixes\Node_Fixes;
 
-use \PHP_Typography\Fixes\Node_Fixes;
-use \PHP_Typography\Settings;
+use PHP_Typography\Fixes\Node_Fixes;
+use PHP_Typography\Settings;
 
 /**
  * Smart_Dashes_Fix unit test.
@@ -34,7 +34,6 @@ use \PHP_Typography\Settings;
  * @usesDefaultClass \PHP_Typography\Fixes\Node_Fixes\Smart_Dashes_Fix
  *
  * @uses ::__construct
- * @uses PHP_Typography\Arrays
  * @uses PHP_Typography\DOM
  * @uses PHP_Typography\Settings
  * @uses PHP_Typography\Settings\Dash_Style
@@ -49,8 +48,8 @@ class Smart_Dashes_Fix_Test extends Node_Fix_Testcase {
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->fix = new Node_Fixes\Smart_Dashes_Fix();
 	}
@@ -101,6 +100,26 @@ class Smart_Dashes_Fix_Test extends Node_Fix_Testcase {
 				'Foo-',
 				'Foo-',
 				'Foo-',
+			],
+			[
+				'Warenein- und -ausgang',
+				'Warenein- und &#8209;ausgang',
+				'Warenein- und &#8209;ausgang',
+			],
+			[
+				'Fugen-s',
+				'Fugen&#8209;s',
+				'Fugen&#8209;s',
+			],
+			[
+				'ein-, zweimal',
+				'ein&#8209;, zweimal',
+				'ein&#8209;, zweimal',
+			],
+			[
+				'Just call 800-4567',
+				'Just call 800&#8209;4567',
+				'Just call 800&#8209;4567',
 			],
 		];
 	}

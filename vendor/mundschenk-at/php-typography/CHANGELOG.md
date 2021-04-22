@@ -1,5 +1,144 @@
 # Change History
 
+## 6.6.0 - April 5, 2020
+*   _Feature_: Use native `mb_str_split` on PHP 7.4 and above.
+*   _Change_: Significantly updated hyphenation patterns for:
+    -   Amharic
+    -   Chinese pinyin (Latin)
+    -   German
+    -   German (Traditional)
+    -   German (Swiss Traditional)
+    -   Latin (Classical)
+    -   Latin (Liturgical)
+    -   Spanish
+
+## 6.5.3 - March 27, 2020
+*   _Bugfix_: Ambiguous `blase` removed from smart diacritics list for `de-DE`.`
+
+## 6.5.2 - December 7, 2019
+*   _Bugfix_: PHP 7.4 compatibility.
+*   _Bugfix_: Parsing does not break anymore when the returned more `DOMDocument`
+    is invalid.
+
+## 6.5.1 - July 8, 2019
+*   _Bugfix_: The smart area and volume units fix now handles missing whitespace
+    as well (e.g. `5m2` is transformed into `5 m²`).
+
+## 6.5.0 - July 6, 2019
+*   _Feature_: Use non-breaking hyphen for connecting one-letter-words and when
+    an elision is followed by a comma.
+*   _Feature_: All special unicode characters can now be remapped using the `Settings`
+    constructor or the new `Settings::remap_character()` method. By default,
+    `U::APOSTROPHE` is remapped to `U::SINGLE_QUOTE_CLOSE` and `U::NO_BREAK_NARROW_SPACE`
+    to `U::NO_BREAK_SPACE`, keeping compatibility with previous versions.
+*   _Feature_: A new dash style (`Dash_Styles::INTERNATIONAL_NO_HAIR_SPACES`) has
+    been added, following the Duden convention of not having hair spaces around
+    interval dashes.
+*   _Feature_: Metric area and volume units can now be prettified (e.g. `m2` to `m²`).
+*   _Change_: All settings keys now have named constants. Going forward, please
+    only use those.
+*   _Bugfix_: Decades in the English (`'60s`) and German (`'80er`) styles are now
+    rendered with an apostrophe.
+
+## 6.4.3 - January 29, 2019
+*   _Bugfix_: To prevent common false positives for single-letter Roman ordinals
+    (especially in French and Dutch), Roman numeral matching is now only enabled
+    when `Settings::set_smart_ordinal_suffix_match_roman_numerals` is set to `true`.
+    In addition, only `I`, `V`, and `X` are accepted as single-letter Roman numbers.
+
+## 6.4.2 - January 27, 2019
+*   _Bugfix_: The Unicode hyphen character (`‐`) is recognized as a valid word combiner.
+
+## 6.4.1 - January 27, 2019
+*   _Bugfix_: Parts of hyphenated words should not be detected as Roman numerals anymore.
+
+## 6.4.0 - January 24, 2019
+*   _Feature_: French (1<sup>ère</sup>) and "Latin" (1<sup>o</sup>) ordinal numbers are now supported by the smart ordinals feature (also with Roman numerals, e.g. XIX<sup>ème</sup>).
+*   _Bugfix_: Unit spacing was not applied to monetary symbols ($, €, etc.).
+
+## 6.3.1 - January 23, 2019
+*   _Bugfix_: Certain entities (e.g. `&amp;`) were not encoded correctly when modifying a node.
+
+## 6.3.0 - September 8, 2018
+*   _Feature_: The comma can now be used as a decimal separator (e.g. `1,5`, in addition to `1.5`).
+*   _Change_: PHP-Typography now uses the Unicode hyphen character (`‐`) instead of the hyphen-minus (`-`).
+*   _Change_: Smart dashes has been refactored into a separate token fix.
+*   _Bugfix_: Smart maths properly handles 2-digit years in dates.
+
+
+## 6.2.2 - August 30, 2018
+*   _Bugfix_: Smart diacritics won't try to "correct" the spelling of `Uber` anymore.
+
+## 6.2.1 - August 27, 2018
+*   _Bugfix_: French punctuation is now correctly applied to quotes preceeded or
+    followed by round and square brackets.
+
+## 6.2.0 - August 26, 2018
+*   _Feature_: A narrow no-break space is now inserted between adjacent primary and secondary quotes.
+*   _Feature_: The list of "apostrophe exceptions" (like `'tain't`, `'til`) can now be adjusted.
+*   _Change_: Significantly updated hyphenation patterns for:
+    -   Bulgarian
+    -   German
+    -   German (Traditional)
+    -   German (Swiss Tradtional)
+    -   Latin (Liturgical)
+    -   Thai
+*   _Bugfix_: Smart quotes replacement could result in invalid unicode sequences in rare cases.
+
+## 6.1.5 - May 10, 2018
+*   _Bugfix_: The French spacing rules were not applied to closing guillemets followed by a comma.
+*   _Bugfix_: 50/50 (and x/x except 1/1) are not treated as fractions anymore.
+
+## 6.1.4 - April 08, 2018
+*   _Bugfix_: Smart fractions were not matched correctly if the were followed by a comma (i.e. `1/4,`).
+
+## 6.1.3 - March 02, 2018
+*   _Bugfix_: In rare cases, UTF-8 characters were broken by a missing 'u' flag in a regular expression.
+
+## 6.1.2 - February 25, 2018
+*   _Bugfix_: The `Quotes` class was missing from the signature of `Settings::set_smart_quotes_*`.
+
+## 6.1.1 - February 04, 2018
+*   _Bugfix_: < and > where silently dropped when replacing nodes due to HTML injection.
+
+## 6.1.0 - January 05, 2018
+*   _Feature_: New hyphenation languages
+    -   Assamese,
+    -   Belarusian,
+    -   Bengali,
+    -   Church Slavonic,
+    -   Esperanto,
+    -   Friulan,
+    -   Gujarati,
+    -   Kannada,
+    -   Kurmanji,
+    -   Malayalam,
+    -   Norwegian (Bokmål)
+    -   Norwegian (Nynorsk)
+    -   Piedmontese,
+    -   Romansh,
+    -   Upper Sorbian.
+
+## 6.0.1 - January 03, 2018
+*   _Bugfix_: `Default_Registry::get_default_node_fixes` and `Default_Registry::get_default_token_fixes` were missing the `static` keyword.
+
+## 6.0.0 - December 25, 2017
+*   _Feature_: New `Registry` class introduced to allow for custom fixes collections.
+*   _Feature_: CSS classes for the virtual `<body>` node can now be set when processing strings.
+*   _Change_: "French punctuation spacing" is now off by default.
+*   _Change_: The deprecated class `Hyphenator_Cache` has been removed.
+*   _Change_: The deprecated properties `Settings::inappropriate_tags` and `Settings::self_closing_tags` have been removed.
+*   _Bugfix_: Numbers are treated like characters for the purpose of wrapping emails.
+
+## 5.2.3 - December 02, 2017
+*   _Bugfix_: Sometimes, the French double quotes style generated spurious ».
+
+## 5.2.2 - November 25, 2017
+*   _Bugfix_: Remove some ambiguous diacritics replacements from the German language file.
+
+## 5.2.1 - October 27, 2017
+*   _Bugfix_: Dewidow didn't honor narrow spaces.
+
 ## 5.2.0 - September 30, 2017
 *   _Change_: `Hyphenator_Cache` has been moved to `Hyphenator\Cache`.
 *   _Change_: New method `has_changed` for `Hyphenator\Cache`.
@@ -8,7 +147,7 @@
 
 ## 5.1.0 - September 10, 2017
 
-*   _Feature_: New hyphenation language "Swiss-German (Traditional)" added.
+*   _Feature_: New hyphenation language "German (Swiss Traditional)" added.
 *   _Feature_: Dewidowing can now be applied to the final 1–3 words.
 *   _Change_: Started adding some benchmarks.
 *   _Change_: Updated HTML5 parser (html5-php) to 2.3.0:
