@@ -11,14 +11,6 @@ class TextformatterTypographer extends Textformatter
   use UsesTypographer, UsesUtilities, Debugs;
 
   /**
-   * Module constructor
-   */
-  public function __construct()
-  {
-    parent::__construct();
-  }
-
-  /**
    * Textformatter formatValue (Typographer handler)
    * @param $text
    */
@@ -32,6 +24,12 @@ class TextformatterTypographer extends Textformatter
 
     // Run Typographer and return the converted input.
     $value = $this->typographer($value);
+  }
+
+  public function formatString($value)
+  {
+    require_once(/*NoCompile*/__DIR__ . '/vendor/autoload.php');
+    return $this->typographer($value);
   }
 
   /**
