@@ -1,27 +1,31 @@
-*.tmlanguage.cache
-*.tmPreferences.cache
-*.stTheme.cache
-*.sublime-workspace
-sftp-config.json
-Package Control.last-run
-Package Control.ca-list
-Package Control.ca-bundle
-Package Control.system-ca-bundle
-Package Control.cache/
-Package Control.ca-certs/
-Package Control.merged-ca-bundle
-Package Control.user-ca-bundle
-oscrypto-ca-bundle.crt
-bh_unicode_properties.cache
-GitHub.sublime-settings
-Thumbs.db
-ehthumbs.db
-ehthumbs_vista.db
-Desktop.ini
-$RECYCLE.BIN/
+.phpintel/
 *.cab
+*.lnk
 *.msi
 *.msm
 *.msp
-*.lnk
-.phpintel/
+*.stTheme.cache
+*.sublime-workspace
+*.tmlanguage.cache
+*.tmPreferences.cache
+$RECYCLE.BIN/
+bh_unicode_properties.cache
+Desktop.ini
+ehthumbs_vista.db
+ehthumbs.db
+GitHub.sublime-settings
+oscrypto-ca-bundle.crt
+Package Control.ca-bundle
+Package Control.ca-certs/
+Package Control.ca-list
+Package Control.cache/
+Package Control.last-run
+Package Control.merged-ca-bundle
+Package Control.system-ca-bundle
+Package Control.user-ca-bundle
+sftp-config.json
+Thumbs.db
+
+lib/masterminds/html5/.github/
+lib/mundschenk-at/php-typography/.github/
+lib/mundschenk-at/php-typography/tests/

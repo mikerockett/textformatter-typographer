@@ -6,9 +6,15 @@ Typographer is a ProcessWire wrapper for the awesome PHP Typography class, origi
 
 The module may be installed via the modules directory by searching for **TextformatterTypographer**.
 
+Or, you can use Composer:
+
+```
+composer require rockett/textformatter-typographer
+```
+
 ## Usage
 
-To use Typographer, simply apply the textformatter on a field as you usually would.
+To use Typographer, simply apply the text formatter on a field as you usually would.
 
 If you are interacting with content that does not form part of the normal ProcessWire page system, such as fetching content from an external source, you can make use of the `formatString` method on the module class:
 

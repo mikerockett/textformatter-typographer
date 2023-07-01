@@ -2,28 +2,14 @@
 
 namespace Typographer;
 
-use PHP_Typography\Settings as TypographerSettings;
+use PHP_Typography\Settings;
 
 trait TypographerTrait
 {
-  /**
-   * Current Typographer instance
-   * @var Typographer
-   */
-  protected $typographerInstance;
+  protected Typographer $typographerInstance;
+  protected Settings $settingsInstance;
 
-  /**
-   * Current Settings instance
-   * @var Settings
-   */
-  protected $settingsInstance;
-
-  /**
-   * Basic options that are either bools or strings.
-   * These are pulled in directly from the module's configuration.
-   * @return void
-   */
-  protected function setBasicOptions()
+  protected function setBasicOptions(): void
   {
     foreach ($this->typographerInstance->basicOptions as $moduleOption) {
       $methodName = "set_{$this->snakeCase($moduleOption)}";
@@ -31,14 +17,7 @@ trait TypographerTrait
     }
   }
 
-  /**
-   * Explode the exclusions string to an array after trimming it and removing
-   * any duplicate whitespace. Then process each entry, adding it to the
-   * applicable exclusions array. Then process those arrays to set the
-   * appropriate properties on the Typography class.
-   * @return void
-   */
-  protected function setExclusions()
+  protected function setExclusions(): void
   {
     if (!empty($this->exclusions)) {
       $exclusions = trim(str_replace('  ', ' ', $this->exclusions));
@@ -64,12 +43,7 @@ trait TypographerTrait
     }
   }
 
-  /**
-   * If the hyphenation language is not empty, then we can set the language,
-   * options, and word-exceptions. Otherwise, turn off hyphenation.
-   * @return void
-   */
-  protected function setHyphenation()
+  protected function setHyphenation(): void
   {
     if (!empty($this->hyphenationLanguage)) {
       $this->settingsInstance->set_hyphenation_language($this->hyphenationLanguage);
@@ -84,14 +58,7 @@ trait TypographerTrait
     }
   }
 
-  /**
-   * Options that require conversion from a property list
-   * to an array. The Rockett\Traits\UtilityTrait\parsePropertyList()
-   * description contains more information about how
-   * property lists are formatted.
-   * @return void
-   */
-  protected function setPropertyMappings()
+  protected function setPropertyMappings(): void
   {
     foreach ($this->typographerInstance->propertyMappings as $config => $propertySeparator) {
       if (!empty($this->$config)) {
@@ -101,33 +68,23 @@ trait TypographerTrait
     }
   }
 
-  /**
-   * This method creates a new Typographer and Settings instance,
-   * sets options based on the module's configuration, and
-   * proceeds to convert the input.
-   * @param $input
-   */
-  protected function typographer($input)
+  protected function typographer(string $input): string
   {
     $this->typographerInstance = new Typographer();
-    $this->settingsInstance = new TypographerSettings();
+    $this->settingsInstance = new Settings();
 
-    // Set configuration
     $this->setBasicOptions();
     $this->setPropertyMappings();
     $this->setHyphenation();
     $this->setExclusions();
 
-    // Run hook to allow modification of the Settings instance
     $settingsInstance = $this->customTypographerSettings($this->settingsInstance);
 
-    // Process and return the incoming text
     return $this->typographerInstance->process($input, $settingsInstance);
   }
 
   /**
-   * Hook to allow modifcation of the Typographer Settings instance
-   * outside of the module’s configuration.
+   * @param Settings $settingsInstance
    */
   public function ___customTypographerSettings($settingsInstance)
   {

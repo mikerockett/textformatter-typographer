@@ -1,0 +1,27 @@
+# tmp files
+*~
+
+# Composer
+vendor/*
+composer.lock
+
+# Node.js/Grunt
+node_modules/*
+
+# SASS
+.sass-cache/*
+
+# PHPUnit cache
+.phpunit.result.cache
+
+# ignore generated code coverage files
+tests/coverage/*
+
+# ignore dummy PHP file for language names
+src/_language_names.php
+
+# IANA TLD list
+src/IANA/*
+
+# macOS Finder
+.DS_Store

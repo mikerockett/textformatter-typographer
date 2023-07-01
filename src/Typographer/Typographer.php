@@ -6,12 +6,7 @@ use PHP_Typography\PHP_Typography as Typography;
 
 class Typographer extends Typography
 {
-  /**
-   * CSS classes that can be overriden by calling
-   * the appropriate methods.
-   * @var array
-   */
-  protected $css_classes = [
+  protected array $css_classes = [
     'quo' => 'pull-single initial',
     'dquo' => 'pull-double initial',
     'pull-single' => 'pull-single',
@@ -26,11 +21,7 @@ class Typographer extends Typography
     'ordinal' => 'char-ordinal',
   ];
 
-  /**
-   * Basic options
-   * @var array
-   */
-  public $basicOptions = [
+  public array $basicOptions = [
     'dewidow',
     'diacriticLanguage',
     'emailWrap',
@@ -61,19 +52,11 @@ class Typographer extends Typography
     'dashSpacing',
     'trueNoBreakNarrowSpace',
 
-    /**
-         * The following basic options are reserved
-         * for a future release.
-         * @reserved
-         */
+    // RESERVED:
     // 'units',
   ];
 
-  /**
-   * Property mappings
-   * @var array
-   */
-  public $propertyMappings = [
+  public array $propertyMappings = [
     'diacriticCustomReplacements' => "\n",
   ];
 }

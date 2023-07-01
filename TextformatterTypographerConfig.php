@@ -1,18 +1,20 @@
 <?php
 
+namespace ProcessWire;
+
 require_once __DIR__ . '/loader.php';
 
-use Rockett\DebugTrait as Debugs;
-use Rockett\FieldsTrait as UsesFields;
+use Util\DebugTrait;
+use Util\FieldsTrait;
 
 class TextformatterTypographerConfig extends ModuleConfig
 {
-  use UsesFields, Debugs;
+  use DebugTrait;
+  use FieldsTrait;
 
   protected $savedConfig;
 
   /**
-   * Get default configuration, automatically passed to input fields.
    * @return array
    */
   public function getDefaults()
@@ -53,49 +55,33 @@ class TextformatterTypographerConfig extends ModuleConfig
       'dashSpacing' => true,
       'trueNoBreakNarrowSpace' => false,
 
-      /*
-             * The following basic options are reserved
-             * for a future release.
-             * @reserved
-             */
+      // RESERVED
       // 'units',
     ];
   }
 
   /**
-   * Render input fields on config Page.
    * @return Inputfields
    */
   public function getInputFields()
   {
-    // Require the Composer autoloader and prevent
-    // the ProcessWire FileCompile from touching anything.
-    // Note: this is only done at method-call-time as it this is
-    // not an autoload module.
-    require_once(/*NoCompile*/__DIR__ . '/vendor/autoload.php');
+    require_once(/*NoCompile*/__DIR__ . '/lib/autoload.php');
 
-    // We need to fetch this now (for rendering checks and crosses)
-    // as ModuleConfig will override the data array with the defaults
-    // the moment parent::getInputfields() is called.
     $this->savedConfig = $this->data;
 
-    // Start inputfields
     $inputfields = parent::getInputfields();
 
-    // Smart Fieldset
     $fieldsetSmart = $this->buildInputField('Fieldset', [
       'label' => $this->_('Smart Options'),
       'collapsed' => Inputfield::collapsedNever,
     ]);
 
-    // Smart Quotes Fieldset
     $fieldsetSmartQuotes = $this->buildInputField('Fieldset', [
       'label' => 'Quotes',
       'icon' => $this->stateIcon('smartQuotes|styleInitialQuotes|initialQuoteTags'),
       'collapsed' => Inputfield::collapsedYes,
     ]);
 
-    // Smart Quotes
     $fieldsetSmartQuotes->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartQuotes',
       'description' => $this->_('This option will transform straight quotes and backticks into contextually-aware curly quotes, primes, apostrophes, and even double-low-9-quotemarks.'),
@@ -105,7 +91,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 35,
     ]));
 
-    // Initial Quote Wrapping
     $fieldsetSmartQuotes->add($this->buildInputField('Checkbox', [
       'name+id' => 'styleInitialQuotes',
       'description' => $this->_('When enabled, Smart Quotes will be wrapped in a span element for CSS styling, such as hanging punctuation.'),
@@ -117,7 +102,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => 'smartQuotes=1',
     ]));
 
-    // Initial Quote Tags
     $fieldsetSmartQuotes->add($this->buildInputField('Text', [
       'name+id' => 'initialQuoteTags',
       'description' => $this->_('In which block-level HTML elements may initial quotes be styled?'),
@@ -130,17 +114,14 @@ class TextformatterTypographerConfig extends ModuleConfig
       'monospace' => true,
     ]));
 
-    // Add Smart Quotes Fieldset
     $fieldsetSmart->add($fieldsetSmartQuotes);
 
-    // Smart Dashes Fieldset
     $fieldsetSmartDashes = $this->buildInputField('Fieldset', [
       'label' => 'Dashes',
       'icon' => $this->stateIcon('smartDashes'),
       'collapsed' => Inputfield::collapsedYes,
     ]);
 
-    // Enable Smart Dashes
     $fieldsetSmartDashes->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartDashes',
       'description' => $this->_('This option will transform minus-hyphens and multi-minus-hyphens into contextually aware en and em dashes and no-break-hyphens for phone numbers.'),
@@ -151,7 +132,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 30,
     ]));
 
-    // Dashes Style
     $fieldsetSmartDashes->add($this->buildInputField('Radios', [
       'name+id' => 'smartDashesStyle',
       'description' => $this->_('Choose between international- and US-English dash styles.'),
@@ -167,17 +147,14 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => 'smartDashes=1',
     ]));
 
-    // Add Smart Dashes Fieldset
     $fieldsetSmart->add($fieldsetSmartDashes);
 
-    // Smart Diacritics Fieldset
     $fieldsetSmartDiacritics = $this->buildInputField('Fieldset', [
       'label' => 'Diacritics',
       'icon' => $this->stateIcon('smartDiacritics'),
       'collapsed' => Inputfield::collapsedYes,
     ]);
 
-    // Enable Smart Diacritics
     $fieldsetSmartDiacritics->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartDiacritics',
       'description' => $this->_("This option will automatically search for any that should utilise diacritics, and ensures that they do. For example, *creme brulee* would transform to *crème brûlée*. Note that words that alternate in meaning when used with diacritics, like *resume*/*résumé*, *divorce*/*divorcé* and *expose*/*exposé*, will not be transformed."),
@@ -188,11 +165,10 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Smart Diacritics Language
     $fieldsetSmartDiacritics->add($this->buildInputField('Select', [
       'name+id' => 'diacriticLanguage',
       'description' => $this->_('Select the diacritic language.'),
-      'notes' => $this->_('**Note:** Note that the difference between the two is small. See the `**/vendor/mundschenk-at/php-typography/src/diacritics**` directory to see how different they are. **Sensible Default:** English (United States)'),
+      'notes' => $this->_('**Note:** Note that the difference between the two is small. See the `**/lib/mundschenk-at/php-typography/src/diacritics**` directory to see how different they are. **Sensible Default:** English (United States)'),
       'label' => $this->_('Language'),
       'options' => \Typographer\Typographer::get_diacritic_languages(),
       'collapsed' => Inputfield::collapsedNever,
@@ -202,7 +178,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => 'smartDiacritics=1',
     ]));
 
-    // Diacritic Custom Replacements
     $fieldsetSmartDiacritics->add($this->buildInputField('Textarea', [
       'name+id' => 'diacriticCustomReplacements',
       'description' => $this->_('If you would like to add your own custom diacritic replacements, specify them below in the format `**word=replacement**`, with each set on its own line.'),
@@ -213,17 +188,14 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => 'smartDiacritics=1',
     ]));
 
-    // Add Smart Diacritics Fieldset
     $fieldsetSmart->add($fieldsetSmartDiacritics);
 
-    // Smart Fractions & Math Fieldset
     $fieldsetSmartMath = $this->buildInputField('Fieldset', [
       'label' => 'Fractions & Math',
       'icon' => $this->stateIcon('smartFractions|fractionSpacing|smartMath|smartExponents'),
       'collapsed' => Inputfield::collapsedYes,
     ]);
 
-    // Enable Smart Fractions
     $fieldsetSmartMath->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartFractions',
       'description' => $this->_('This option will identify fractions and then raise the numerator, lower the denominator and replace the forward-slash with a fraction-slash.'),
@@ -234,7 +206,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Fraction Spacing
     $fieldsetSmartMath->add($this->buildInputField('Checkbox', [
       'name+id' => 'fractionSpacing',
       'description' => $this->_('When enabled, fractions will be spaced use a normal non-breaking space instead of a thin-space. This may be set even if smart fractions are not enabled.'),
@@ -245,7 +216,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Smart Math
     $fieldsetSmartMath->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartMath',
       'description' => $this->_('This option will correctly transform minus, division, and multiplication marks into their proper equivalents.'),
@@ -256,7 +226,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Smart Exponents
     $fieldsetSmartMath->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartExponents',
       'description' => $this->_('This option will identify exponents and superscript them accordingly.'),
@@ -267,10 +236,8 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Add Smart Fractions Fieldset
     $fieldsetSmart->add($fieldsetSmartMath);
 
-    // Smart Ellipses
     $fieldsetSmart->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartEllipses',
       'description' => $this->_('This option will transform three consecutive periods to an ellipsis character.'),
@@ -281,7 +248,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'icon' => $this->stateIcon('smartEllipses'),
     ]));
 
-    // Smart Marks
     $fieldsetSmart->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartMarks',
       'description' => $this->_('This option will transform copyright-, trade-, and service-marks to their proper marks. (r), (c), (tm), (sm), and (p) are transformed to ®, ©, ™, ℠, and ℗, respectively.'),
@@ -292,7 +258,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'icon' => $this->stateIcon('smartMarks'),
     ]));
 
-    // Smart Ordinals
     $fieldsetSmart->add($this->buildInputField('Checkbox', [
       'name+id' => 'smartOrdinalSuffix',
       'description' => $this->_('This option will identify numbers followed by an ordinal suffix and then superscript the ordinal.'),
@@ -303,7 +268,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'icon' => $this->stateIcon('smartOrdinalSuffix'),
     ]));
 
-    // Widows and Single Characters Fieldset
     $fieldsetWidows = $this->buildInputField('Fieldset', [
       'label' => $this->_('Dewidowing'),
       'collapsed' => Inputfield::collapsedYes,
@@ -311,7 +275,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'icon' => $this->stateIcon('dewidow|singleCharacterWordSpacing'),
     ]);
 
-    // Widow Protection
     $fieldsetWidows->add($this->buildInputField('Checkbox', [
       'name+id' => 'dewidow',
       'description' => $this->_('When enabled, word protection will attempt to protect widows, the last words in block level texts that fall to their own line. Widows get lonely when they are all alone. When word protection is turned on, widows are kept company by the injection of a non-​breaking space between them and the previous word, causing both words to drop to the next line together. No more loneliness.'),
@@ -322,7 +285,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Single Character Protection
     $fieldsetWidows->add($this->buildInputField('Checkbox', [
       'name+id' => 'singleCharacterWordSpacing',
       'description' => $this->_('Similar in behaviour to word protection, this will prevent single-character words from wrapping over to a new line.'),
@@ -333,10 +295,8 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Add Widows and Single Characters fieldset
     $fieldsetSmart->add($fieldsetWidows);
 
-    // Smart Spacing Fieldset
     $fieldsetSmartSpacing = $this->buildInputField('Fieldset', [
       'label' => 'Other Spacing',
       'icon' => $this->stateIcon('unitSpacing|dashSpacing|numberedAbbreviationSpacing|frenchPunctuationSpacing|spaceCollapse|trueNoBreakNarrowSpace'),
@@ -344,7 +304,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'collapsed' => Inputfield::collapsedYes,
     ]);
 
-    // Unit Spacing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'unitSpacing',
       'description' => $this->_("When checked, this will ensure values are glued to their units. For example, **1 KB** would be converted to **1KB**."),
@@ -355,7 +314,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Dash Spacing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'dashSpacing',
       'description' => $this->_("When checked, em- and en- dashes will be wrapped in a thin space."),
@@ -366,7 +324,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Numbered Abbreviation Spacing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'numberedAbbreviationSpacing',
       'description' => $this->_("When checked, this will separate numbered abbreviations (such as **ISO 9000**) with a non-breaking space."),
@@ -377,7 +334,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // French Punctuation Spacing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'frenchPunctuationSpacing',
       'description' => $this->_('When enabled, this adds whitespace before certain punctuation marks, such as a colon, as in French custom.'),
@@ -388,7 +344,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Space Collapsing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'spaceCollapse',
       'description' => $this->_('Collapse extra contiguous spaces into a single space.'),
@@ -399,7 +354,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Space Collapsing
     $fieldsetSmartSpacing->add($this->buildInputField('Checkbox', [
       'name+id' => 'trueNoBreakNarrowSpace',
       'description' => $this->_('When enabled, a non-breaking narrow space (nnbsp) will be used instead of a normal non-breaking space (nbsp)'),
@@ -410,13 +364,10 @@ class TextformatterTypographerConfig extends ModuleConfig
       'columnWidth' => 50,
     ]));
 
-    // Add Smart Spacing fieldset
     $fieldsetSmart->add($fieldsetSmartSpacing);
 
-    // Add Smart fieldset
     $inputfields->add($fieldsetSmart);
 
-    // Hyphenation Fieldset
     $fieldsetHyphenation = $this->buildInputField('Fieldset', [
       'label' => $this->_('Hyphenation'),
       'collapsed' => Inputfield::collapsedYes,
@@ -424,7 +375,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'icon' => $this->stateIcon('hyphenationLanguage'),
     ]);
 
-    // Hyphenation Language (blank to disable)
     $fieldsetHyphenation->add($this->buildInputField('Select', [
       'name+id' => 'hyphenationLanguage',
       'label' => $this->_('Language Code'),
@@ -435,7 +385,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'options' => \Typographer\Typographer::get_hyphenation_languages(),
     ]));
 
-    // Hyphenatation Options
     $fieldsetHyphenation->add($this->buildInputField('Checkboxes', [
       'name+id' => 'hyphenationOptions',
       'label' => $this->_('Options'),
@@ -451,7 +400,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => "hyphenationLanguage!=''",
     ]));
 
-    // Hyphenation Exceptions
     $fieldsetHyphenation->add($this->buildInputField('Text', [
       'name+id' => 'hyphenationExceptions',
       'label' => $this->_('Word Exceptions'),
@@ -462,17 +410,14 @@ class TextformatterTypographerConfig extends ModuleConfig
       'showIf' => "hyphenationLanguage!=''",
     ]));
 
-    // Add Hyphenation fieldset
     $inputfields->add($fieldsetHyphenation);
 
-    // Styles & Wrappers Fieldset
     $fieldsetStylesWrappers = $this->buildInputField('Fieldset', [
       'label' => $this->_('Styles & Wrappers'),
       'collapsed' => Inputfield::collapsedYes,
       'icon' => $this->stateIcon('styleHangingPunctuation|styleCaps|styleNumbers|styleAmpersands|wrapHardHyphens|emailWrap|urlWrap'),
     ]);
 
-    // Style hanging punctuation
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'styleHangingPunctuation',
       'description' => $this->_('This option enables the wrapping of certain punctuation and wide characters in push/pull spans. This feature is similar to optical margins.'),
@@ -483,7 +428,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Style CAPS
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'styleCaps',
       'description' => $this->_('This option wraps consecutive capital letters in a span element for CSS styling.'),
@@ -494,7 +438,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Style Numbers
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'styleNumbers',
       'description' => $this->_('This option wraps numbers in a span element for CSS styling.'),
@@ -505,7 +448,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Wrap Ampersands
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'styleAmpersands',
       'description' => $this->_('This option wraps ampersands (&amp;) in a span element for CSS styling.'),
@@ -516,7 +458,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Wrap Hard Hyphens
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'wrapHardHyphens',
       'description' => $this->_("Some browsers do not allow words such as *mother-in-law* to wrap after a hard hyphen at line’s end. Enabling this option will allow such wrapping by inserting a zero-width-space."),
@@ -526,7 +467,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Wrap Email Addresses
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'emailWrap',
       'description' => $this->_("Email addresses can get fairly lengthy, and not all browsers will allow them break apart at line’s end for efficient line-wrapping. This method will enable wrapping of email addresses by strategically inserting a zero-width-space after every non-alphanumeric character in the email address."),
@@ -536,7 +476,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Wrap URLs
     $fieldsetStylesWrappers->add($this->buildInputField('Checkbox', [
       'name+id' => 'urlWrap',
       'description' => $this->_("Much like email addresses, URLs can get fairly lengthy, and not all browsers will allow them break apart at line’s end for efficient line-wrapping. This method will enable wrapping of URLs by strategically inserting zero-width-spaces. Wrapping points are conservatively inserted into the domain portion of the URL, and aggressively added to the subsequent path."),
@@ -546,10 +485,8 @@ class TextformatterTypographerConfig extends ModuleConfig
       'autocheck' => true,
     ]));
 
-    // Add Wrappers fieldset
     $inputfields->add($fieldsetStylesWrappers);
 
-    // Exclude elements, classes, and IDs
     $inputfields->add($this->buildInputField('Text', [
       'name+id' => 'exclusions',
       'description' => $this->_('Do not process the content of the following elements and elements with specific classes or identifiers:'),
@@ -575,20 +512,14 @@ class TextformatterTypographerConfig extends ModuleConfig
   }
 
   /**
-   * Select a FontAwesome icon based on the state of a
-   * configuration value (true/false).
-   * Also supports multiple configuration values, separated
-   * by a pipe. If some are true and others are false, an
-   * indeterminate icon should be used.
-   * @param  boolean $configName
+   * @param boolean $configName
+   * @param array $icons
    * @return mixed
    */
   protected function stateIcon($configName, $icons = ['check-square-o', 'square-o', 'minus-square-o'])
   {
     $configs = explode('|', $configName);
 
-    // If multiple configs are defined, then we need
-    // to loop through them.
     if (count($configs) > 1) {
       $fetchedConfigs = array_intersect_key(
         $this->savedConfig,
@@ -600,7 +531,6 @@ class TextformatterTypographerConfig extends ModuleConfig
       return $icons[2];
     }
 
-    // Otherwise, we're just getting the icon for one value.
     if (!isset($this->savedConfig[$configName])) {
       return 'warning';
     }

@@ -1,5 +1,20 @@
 {
+  "name": "rockett/textformatter-typographer",
+  "description": "Typographer is a ProcessWire wrapper for the awesome PHP Typography package.",
+  "type": "processwire-module",
+  "license": "MIT",
   "require": {
-    "mundschenk-at/php-typography": "^6.6"
+    "mundschenk-at/php-typography": "^6.7",
+    "php": ">=7.4.0",
+    "composer/installers": "^2.2"
+  },
+  "extra": {
+    "installer-name": "TextformatterTypographer"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    },
+    "vendor-dir": "lib"
   }
 }
